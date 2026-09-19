@@ -1,0 +1,383 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "BEST V4 ROBINHOOD API",
+    "version": "0.1.0",
+    "description": "Lightweight paid feed of the most used Robinhood V4 pools, optimized for bots and AI agents that need fast entry signals.",
+    "contact": {
+      "email": "contacto@zumnova.com.ar"
+    },
+    "externalDocs": {
+      "description": "BEST V4 ROBINHOOD docs",
+      "url": "https://best-v4-robinhood.zumpay.com.ar/docs"
+    },
+    "x-guidance": "Paid pool-intelligence endpoint for bots and AI agents. Call /v1/robinhood/v4/best-pools to get a compact ranked list of active, high-usage Robinhood V4 pools. Use limit, min_volume_24h_usd, min_liquidity_usd and token to keep responses small and decide quickly whether a pool is active enough to enter.",
+    "x-payment-info": {
+      "price": {
+        "mode": "fixed",
+        "currency": "USDC",
+        "amount": "0.001000"
+      },
+      "protocols": [
+        {
+          "x402": {}
+        },
+        {
+          "mpp": {}
+        }
+      ],
+      "networks": [
+        "arc",
+        "base"
+      ]
+    }
+  },
+  "externalDocs": {
+    "description": "BEST V4 ROBINHOOD docs",
+    "url": "https://best-v4-robinhood.zumpay.com.ar/docs"
+  },
+  "servers": [
+    {
+      "url": "https://best-v4-robinhood.zumpay.com.ar"
+    }
+  ],
+  "paths": {
+    "/v1/robinhood/v4/best-pools": {
+      "get": {
+        "operationId": "getBestRobinhoodV4Pools",
+        "summary": "Get the best active Robinhood V4 pools",
+        "description": "Paid x402 endpoint for bots. Returns a compact ranked list of preselected high-usage Robinhood V4 pools with liquidity, volume, activity and route hints.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USDC",
+            "amount": "0.001000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {}
+            }
+          ],
+          "networks": [
+            "arc",
+            "base"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 5,
+              "minimum": 1,
+              "maximum": 20
+            },
+            "description": "Maximum number of pools to return."
+          },
+          {
+            "name": "min_volume_24h_usd",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "default": 0,
+              "minimum": 0
+            },
+            "description": "Minimum 24h USD volume. Use this to avoid inactive pools."
+          },
+          {
+            "name": "min_liquidity_usd",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "default": 0,
+              "minimum": 0
+            },
+            "description": "Minimum USD liquidity filter."
+          },
+          {
+            "name": "token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Optional token symbol, token name or token address filter. Examples: USDC, WETH, 0x..."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Best Robinhood V4 pools returned successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BestV4PoolsResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "status": "success",
+                      "network": "Robinhood",
+                      "product": "BEST V4 ROBINHOOD",
+                      "feed": "best_v4_pools",
+                      "query_filters": {
+                        "limit": 5,
+                        "minVolume24hUsd": 50000,
+                        "minLiquidityUsd": 0,
+                        "token": null
+                      },
+                      "total_detected": 2,
+                      "pools": [
+                        {
+                          "pool_address": "0x1111111111111111111111111111111111111002",
+                          "version": "v4",
+                          "pool_type": "concentrated_liquidity",
+                          "token0": {
+                            "symbol": "USDC",
+                            "name": "USD Coin",
+                            "address": "0x3600000000000000000000000000000000000000",
+                            "decimals": 6
+                          },
+                          "token1": {
+                            "symbol": "WETH",
+                            "name": "Wrapped Ether",
+                            "address": "0x128cC466B61f542da60c70e3aA11c10e19B84EDB",
+                            "decimals": 18
+                          },
+                          "fee_tier_bps": 5,
+                          "liquidity_usd": 425000,
+                          "volume_1h_usd": 28800,
+                          "volume_24h_usd": 392000,
+                          "tx_count_24h": 2310,
+                          "active": true,
+                          "health": "STRONG",
+                          "bot_hint": "DEEPEST_ROUTE"
+                        }
+                      ],
+                      "timestamp": "2026-09-19T18:23:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required. x402 or MPP payment is required before accessing the feed.",
+            "headers": {
+              "X-Payment-Required": {
+                "description": "Payment challenge for simple agents.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "WWW-Authenticate": {
+                "description": "MPP-compatible payment challenge.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentRequiredResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BestV4PoolsResponse": {
+        "type": "object",
+        "required": [
+          "status",
+          "network",
+          "product",
+          "feed",
+          "query_filters",
+          "total_detected",
+          "pools",
+          "timestamp"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "success"
+          },
+          "network": {
+            "type": "string",
+            "const": "Robinhood"
+          },
+          "product": {
+            "type": "string",
+            "const": "BEST V4 ROBINHOOD"
+          },
+          "feed": {
+            "type": "string",
+            "const": "best_v4_pools"
+          },
+          "query_filters": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": "integer"
+              },
+              "minVolume24hUsd": {
+                "type": "number"
+              },
+              "minLiquidityUsd": {
+                "type": "number"
+              },
+              "token": {
+                "type": ["string", "null"]
+              }
+            }
+          },
+          "total_detected": {
+            "type": "integer"
+          },
+          "pools": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/V4Pool"
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "V4Pool": {
+        "type": "object",
+        "required": [
+          "pool_address",
+          "version",
+          "pool_type",
+          "token0",
+          "token1",
+          "fee_tier_bps",
+          "liquidity_usd",
+          "volume_1h_usd",
+          "volume_24h_usd",
+          "tx_count_24h",
+          "active",
+          "health",
+          "bot_hint"
+        ],
+        "properties": {
+          "pool_address": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string",
+            "const": "v4"
+          },
+          "pool_type": {
+            "type": "string"
+          },
+          "token0": {
+            "$ref": "#/components/schemas/Token"
+          },
+          "token1": {
+            "$ref": "#/components/schemas/Token"
+          },
+          "fee_tier_bps": {
+            "type": "integer"
+          },
+          "liquidity_usd": {
+            "type": "number"
+          },
+          "volume_1h_usd": {
+            "type": "number"
+          },
+          "volume_24h_usd": {
+            "type": "number"
+          },
+          "tx_count_24h": {
+            "type": "integer"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "health": {
+            "type": "string",
+            "enum": ["STRONG", "GOOD", "WATCH", "WEAK"]
+          },
+          "bot_hint": {
+            "type": "string"
+          }
+        }
+      },
+      "Token": {
+        "type": "object",
+        "required": ["symbol", "name", "address", "decimals"],
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "decimals": {
+            "type": "integer"
+          }
+        }
+      },
+      "PaymentRequiredResponse": {
+        "type": "object",
+        "required": ["error", "message", "accepts"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "const": "payment_required"
+          },
+          "message": {
+            "type": "string"
+          },
+          "accepts": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": ["error", "message"],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
