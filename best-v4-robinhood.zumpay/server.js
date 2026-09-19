@@ -12,6 +12,9 @@ const PRICE_FIXED = "0.001000";
 const PRICE_USDC_ATOMIC = "1000";
 const CURRENCY = "USDC";
 const NETWORKS = ["arc", "base"];
+const ROBINHOOD_CHAIN_ID = 4663;
+const ROBINHOOD_POOL_MANAGER = "0x8366a39cc670b4001a1121b8f6a443a643e40951";
+const ROBINHOOD_STATE_VIEW = "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b";
 const ARC_USDC_ADDRESS =
   process.env.ARC_USDC_ADDRESS || "0x3600000000000000000000000000000000000000";
 const BASE_USDC_ADDRESS =
@@ -35,47 +38,57 @@ const bestV4Paths = [
 
 const BEST_V4_POOLS = [
   {
-    pool_address: "0x1111111111111111111111111111111111111001",
+    pool_id: "0xa5f23cae4e5c3388c5a8a6b08a83f53e56df8f1a63757e606b362994b68a2361",
     version: "v4",
     pool_type: "concentrated_liquidity",
+    chain_id: ROBINHOOD_CHAIN_ID,
+    pool_manager: ROBINHOOD_POOL_MANAGER,
+    state_view: ROBINHOOD_STATE_VIEW,
     token0: {
-      symbol: "USDC",
-      name: "USD Coin",
-      address: "0x3600000000000000000000000000000000000000",
-      decimals: 6
-    },
-    token1: {
-      symbol: "WKR",
-      name: "Wiker Token",
-      address: "0x434d86063e8dd545f0ae4db7dd69ce8a47a044a0",
+      symbol: "USDe",
+      name: "USDe",
+      address: "0x5d3a1Ff2b6BAb83b63cd9AD0787074081a52ef34",
       decimals: 18
     },
-    fee_tier_bps: 30,
-    liquidity_usd: 182500,
-    volume_1h_usd: 12400,
-    volume_24h_usd: 218000,
-    tx_count_24h: 1840,
+    token1: {
+      symbol: "USDG",
+      name: "USDG",
+      address: "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+      decimals: 6
+    },
+    fee_tier_bps: 1,
+    tick_spacing: 1,
+    liquidity_raw: "250285423749273031723",
+    liquidity_usd: 250000,
+    volume_1h_usd: 18400,
+    volume_24h_usd: 306000,
+    tx_count_24h: 2210,
     active: true,
     health: "STRONG",
-    bot_hint: "HIGH_LIQUIDITY_FAST_ENTRY"
+    bot_hint: "STABLE_CORE_FAST_ENTRY"
   },
   {
-    pool_address: "0x1111111111111111111111111111111111111002",
+    pool_id: "0xfcfae8fa0bd6da961bcf5d990f27690932deac4f093e99bf3e871691c6586593",
     version: "v4",
     pool_type: "concentrated_liquidity",
+    chain_id: ROBINHOOD_CHAIN_ID,
+    pool_manager: ROBINHOOD_POOL_MANAGER,
+    state_view: ROBINHOOD_STATE_VIEW,
     token0: {
-      symbol: "USDC",
-      name: "USD Coin",
-      address: "0x3600000000000000000000000000000000000000",
-      decimals: 6
-    },
-    token1: {
       symbol: "WETH",
       name: "Wrapped Ether",
-      address: "0x128cC466B61f542da60c70e3aA11c10e19B84EDB",
+      address: "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
       decimals: 18
     },
+    token1: {
+      symbol: "USDG",
+      name: "USDG",
+      address: "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+      decimals: 6
+    },
     fee_tier_bps: 5,
+    tick_spacing: 10,
+    liquidity_raw: "11481091544566761",
     liquidity_usd: 425000,
     volume_1h_usd: 28800,
     volume_24h_usd: 392000,
@@ -85,79 +98,184 @@ const BEST_V4_POOLS = [
     bot_hint: "DEEPEST_ROUTE"
   },
   {
-    pool_address: "0x1111111111111111111111111111111111111003",
+    pool_id: "0x77c25b9386d47de62e0155c393696e9f43f7e6d036c6ca52f66735ccbb8808a7",
     version: "v4",
     pool_type: "concentrated_liquidity",
+    chain_id: ROBINHOOD_CHAIN_ID,
+    pool_manager: ROBINHOOD_POOL_MANAGER,
+    state_view: ROBINHOOD_STATE_VIEW,
     token0: {
-      symbol: "USDC",
-      name: "USD Coin",
-      address: "0x3600000000000000000000000000000000000000",
-      decimals: 6
+      symbol: "WETH",
+      name: "Wrapped Ether",
+      address: "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+      decimals: 18
     },
     token1: {
-      symbol: "EURC",
-      name: "EURC",
-      address: "0xbEf5f6d51CB62b58e6A8f77868681825C6fe21c1",
+      symbol: "USDG",
+      name: "USDG",
+      address: "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
       decimals: 6
-    },
-    fee_tier_bps: 5,
-    liquidity_usd: 94000,
-    volume_1h_usd: 7600,
-    volume_24h_usd: 121000,
-    tx_count_24h: 920,
-    active: true,
-    health: "GOOD",
-    bot_hint: "STABLE_PAIR_LOW_SPREAD"
-  },
-  {
-    pool_address: "0x1111111111111111111111111111111111111004",
-    version: "v4",
-    pool_type: "concentrated_liquidity",
-    token0: {
-      symbol: "USDC",
-      name: "USD Coin",
-      address: "0x3600000000000000000000000000000000000000",
-      decimals: 6
-    },
-    token1: {
-      symbol: "WBTC",
-      name: "Circle Wrapped Bitcoin",
-      address: "0x171A4217b86A807A64eB94757Db6849fb4bDbAA0",
-      decimals: 8
     },
     fee_tier_bps: 30,
+    tick_spacing: 60,
+    liquidity_raw: "5106804663311967",
+    liquidity_usd: 185000,
+    volume_1h_usd: 15800,
+    volume_24h_usd: 242000,
+    tx_count_24h: 1380,
+    active: true,
+    health: "STRONG",
+    bot_hint: "WETH_MEDIUM_FEE_ACTIVE"
+  },
+  {
+    pool_id: "0xc748f4671a867db48b552f6b7650bf3255e05f80f00e3f7aad1b17ccb7898fdb",
+    version: "v4",
+    pool_type: "concentrated_liquidity",
+    chain_id: ROBINHOOD_CHAIN_ID,
+    pool_manager: ROBINHOOD_POOL_MANAGER,
+    state_view: ROBINHOOD_STATE_VIEW,
+    token0: {
+      symbol: "USDG",
+      name: "USDG",
+      address: "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+      decimals: 6
+    },
+    token1: {
+      symbol: "AAPL",
+      name: "AAPL",
+      address: "0xaF3D76f1834A1d425780943C99Ea8A608f8a93f9",
+      decimals: 18
+    },
+    fee_tier_bps: 30,
+    tick_spacing: 60,
+    liquidity_raw: "3203172856107032050",
     liquidity_usd: 156000,
     volume_1h_usd: 9800,
     volume_24h_usd: 167500,
     tx_count_24h: 610,
     active: true,
     health: "GOOD",
-    bot_hint: "BTC_EXPOSURE_ACTIVE"
+    bot_hint: "TOKENIZED_EQUITY_ACTIVE"
   },
   {
-    pool_address: "0x1111111111111111111111111111111111111005",
+    pool_id: "0x8567e70dbf639a618ba5eaf9402743452b93ca45c9bf8b97462407f07d7b7448",
     version: "v4",
     pool_type: "concentrated_liquidity",
+    chain_id: ROBINHOOD_CHAIN_ID,
+    pool_manager: ROBINHOOD_POOL_MANAGER,
+    state_view: ROBINHOOD_STATE_VIEW,
     token0: {
-      symbol: "USDC",
-      name: "USD Coin",
-      address: "0x3600000000000000000000000000000000000000",
+      symbol: "SPCX",
+      name: "SPCX",
+      address: "0x4a0E65A3EcceC6dBe60AE065F2e7bb85Fae35eEa",
+      decimals: 18
+    },
+    token1: {
+      symbol: "USDG",
+      name: "USDG",
+      address: "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+      decimals: 6
+    },
+    fee_tier_bps: 30,
+    tick_spacing: 60,
+    liquidity_raw: "31370883197515231",
+    liquidity_usd: 126000,
+    volume_1h_usd: 8400,
+    volume_24h_usd: 151000,
+    tx_count_24h: 790,
+    active: true,
+    health: "GOOD",
+    bot_hint: "SPCX_USDG_ACTIVE"
+  },
+  {
+    pool_id: "0x3bb34a44f1b2b5f32c034c38a53065a521a47b199700fa9bd19d60985ff24bf1",
+    version: "v4",
+    pool_type: "concentrated_liquidity",
+    chain_id: ROBINHOOD_CHAIN_ID,
+    pool_manager: ROBINHOOD_POOL_MANAGER,
+    state_view: ROBINHOOD_STATE_VIEW,
+    token0: {
+      symbol: "USDG",
+      name: "USDG",
+      address: "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
       decimals: 6
     },
     token1: {
-      symbol: "AUDD",
-      name: "Forte AUD",
-      address: "0xd2a530170D71a9Cfe1651Fb468E2B98F7Ed7456b",
-      decimals: 6
+      symbol: "NVDA",
+      name: "NVDA",
+      address: "0xd0601CE157Db5bdC3162BbaC2a2C8aF5320D9EEC",
+      decimals: 18
     },
-    fee_tier_bps: 5,
-    liquidity_usd: 61000,
-    volume_1h_usd: 2400,
-    volume_24h_usd: 43200,
-    tx_count_24h: 310,
+    fee_tier_bps: 30,
+    tick_spacing: 60,
+    liquidity_raw: "587185932210930904",
+    liquidity_usd: 112000,
+    volume_1h_usd: 6900,
+    volume_24h_usd: 138000,
+    tx_count_24h: 720,
     active: true,
     health: "GOOD",
-    bot_hint: "FX_STABLE_ROUTE"
+    bot_hint: "TOKENIZED_EQUITY_ACTIVE"
+  },
+  {
+    pool_id: "0xd313d79d9d6a714e7bdf02fc42a2c27ede7e51928ffd605126fe9e1192630cf8",
+    version: "v4",
+    pool_type: "concentrated_liquidity",
+    chain_id: ROBINHOOD_CHAIN_ID,
+    pool_manager: ROBINHOOD_POOL_MANAGER,
+    state_view: ROBINHOOD_STATE_VIEW,
+    token0: {
+      symbol: "ETH",
+      name: "Native ETH",
+      address: "0x0000000000000000000000000000000000000000",
+      decimals: 18
+    },
+    token1: {
+      symbol: "USDG",
+      name: "USDG",
+      address: "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+      decimals: 6
+    },
+    fee_tier_bps: 30,
+    tick_spacing: 60,
+    liquidity_raw: "20834518276603772",
+    liquidity_usd: 108000,
+    volume_1h_usd: 7200,
+    volume_24h_usd: 132000,
+    tx_count_24h: 680,
+    active: true,
+    health: "GOOD",
+    bot_hint: "NATIVE_ETH_USDG_ACTIVE"
+  },
+  {
+    pool_id: "0xcb6ffbcc84359535c2cc0a5688c0a76520ea6e0a4820fddd3ac8d7880e576370",
+    version: "v4",
+    pool_type: "concentrated_liquidity",
+    chain_id: ROBINHOOD_CHAIN_ID,
+    pool_manager: ROBINHOOD_POOL_MANAGER,
+    state_view: ROBINHOOD_STATE_VIEW,
+    token0: {
+      symbol: "SPCX",
+      name: "SPCX",
+      address: "0x4a0E65A3EcceC6dBe60AE065F2e7bb85Fae35eEa",
+      decimals: 18
+    },
+    token1: {
+      symbol: "USDG",
+      name: "USDG",
+      address: "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+      decimals: 6
+    },
+    fee_tier_bps: 100,
+    tick_spacing: 200,
+    liquidity_raw: "1051914887345998245",
+    liquidity_usd: 64000,
+    volume_1h_usd: 2100,
+    volume_24h_usd: 48100,
+    tx_count_24h: 190,
+    active: true,
+    health: "WATCH",
+    bot_hint: "HIGH_FEE_SECONDARY_ROUTE"
   }
 ];
 
