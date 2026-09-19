@@ -1,0 +1,208 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Zumpay Arc Risk Assessment API",
+    "version": "0.1.0",
+    "description": "API de analisis de riesgo y seguridad Anti-Rugpull para tokens y pools en la red Arc.",
+    "contact": {
+      "email": "contacto@zumnova.com.ar"
+    },
+    "externalDocs": {
+      "description": "Documentacion Zumpay",
+      "url": "https://risk.zumpay.com.ar/docs"
+    },
+    "x-guidance": "Endpoint de seguridad para agentes de IA. Evalua el riesgo de un token o pool en la red Arc enviando la direccion 'address' en el query. Llamalo antes de recomendar un trade, listar un token o interactuar con una pool desconocida. Devuelve risk_score, risk_level, checks Anti-Rugpull, recommendation y timestamp.",
+    "x-payment-info": {
+      "price": {
+        "mode": "fixed",
+        "currency": "USDC",
+        "amount": "0.005000"
+      },
+      "protocols": [
+        {
+          "x402": {}
+        }
+      ],
+      "networks": [
+        "arc",
+        "base"
+      ]
+    }
+  },
+  "externalDocs": {
+    "description": "Documentacion Zumpay Risk API",
+    "url": "https://risk.zumpay.com.ar/docs"
+  },
+  "servers": [
+    {
+      "url": "https://risk.zumpay.com.ar"
+    }
+  ],
+  "paths": {
+    "/v1/arc/risk-check": {
+      "get": {
+        "operationId": "getArcRiskCheck",
+        "summary": "Evalua el riesgo Anti-Rugpull de un token o pool en Arc",
+        "description": "Endpoint pago para agentes de IA. Recibe una direccion EVM/Arc y devuelve una evaluacion estructurada de riesgo, checks de seguridad y recomendacion operativa.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USDC",
+            "amount": "0.005000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            }
+          ],
+          "networks": [
+            "arc",
+            "base"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "address",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{40}$"
+            },
+            "description": "Direccion del token o pool en la red Arc."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Analisis de riesgo devuelto con exito.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiskCheckResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required. Se requiere pago x402 para consultar el analisis.",
+            "headers": {
+              "payment-required": {
+                "description": "Circle Gateway x402 payment challenge.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentRequiredResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RiskCheckResponse": {
+        "type": "object",
+        "required": [
+          "status",
+          "network",
+          "target_address",
+          "risk_score",
+          "risk_level",
+          "checks",
+          "recommendation",
+          "timestamp"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "success"
+          },
+          "network": {
+            "type": "string",
+            "const": "Arc"
+          },
+          "target_address": {
+            "type": "string"
+          },
+          "risk_score": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "risk_level": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "CRITICAL"
+            ]
+          },
+          "checks": {
+            "type": "object",
+            "properties": {
+              "is_honeypot": {
+                "type": "boolean"
+              },
+              "mint_function_enabled": {
+                "type": "boolean"
+              },
+              "ownership_renounced": {
+                "type": "boolean"
+              },
+              "liquidity_locked": {
+                "type": "boolean"
+              },
+              "top_holders_concentration_percentage": {
+                "type": "number"
+              }
+            }
+          },
+          "recommendation": {
+            "type": "string",
+            "enum": [
+              "SAFE_TO_TRADE",
+              "REVIEW_REQUIRED",
+              "AVOID"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PaymentRequiredResponse": {
+        "type": "object",
+        "required": [
+          "error",
+          "message",
+          "accepts"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "payment_required"
+          },
+          "message": {
+            "type": "string"
+          },
+              "accepts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    }
+  }
+}

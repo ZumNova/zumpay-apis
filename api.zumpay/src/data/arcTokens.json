@@ -1,0 +1,44 @@
+[
+  {
+    "symbol": "USDC",
+    "name": "USD Coin",
+    "address": "0x3600000000000000000000000000000000000000",
+    "decimals": 6,
+    "chainId": 5042,
+    "source": "Circle / Arc native USDC"
+  },
+  {
+    "symbol": "WETH",
+    "name": "Wrapped Ether",
+    "address": "0x128cC466B61f542da60c70e3aA11c10e19B84EDB",
+    "decimals": 18,
+    "chainId": 5042,
+    "source": "User-provided verified Arc token list"
+  },
+  {
+    "symbol": "EURC",
+    "name": "EURC",
+    "address": "0xbEf5f6d51CB62b58e6A8f77868681825C6fe21c1",
+    "decimals": 6,
+    "chainId": 5042,
+    "source": "Circle / Arc token address"
+  },
+  {
+    "symbol": "AUDF",
+    "name": "Forte AUD",
+    "address": "0xd2a530170D71a9Cfe1651Fb468E2B98F7Ed7456b",
+    "decimals": 6,
+    "chainId": 5042,
+    "aliases": ["FORTE_AUD"],
+    "source": "User-provided verified Arc token list"
+  },
+  {
+    "symbol": "CWBTC",
+    "name": "Circle Wrapped Bitcoin",
+    "address": "0x171A4217b86A807A64eB94757Db6849fb4bDbAA0",
+    "decimals": 8,
+    "chainId": 5042,
+    "aliases": ["WBTC", "CIRCLE_WBTC"],
+    "source": "User-provided verified Arc token list"
+  }
+]

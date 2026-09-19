@@ -1,0 +1,327 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Zumpay Arc Sniping Feed API",
+    "version": "0.1.0",
+    "description": "Servicio de descubrimiento de pares y pools de liquidez recien creadas en la red Arc en tiempo real.",
+    "contact": {
+      "email": "contacto@zumnova.com.ar"
+    },
+    "externalDocs": {
+      "description": "Documentacion oficial Zumpay",
+      "url": "https://snip.zumpay.com.ar/docs"
+    },
+    "x-guidance": "Endpoint de alta frecuencia para agentes de IA. Retorna listas de pares recien desplegados en Arc. Se recomienda filtrar por min_liquidity_usd para evitar spam. Llamalo cuando un agente necesite descubrir lanzamientos nuevos, monitorear pools frescas o priorizar oportunidades por liquidez inicial.",
+    "x-payment-info": {
+      "price": {
+        "mode": "fixed",
+        "currency": "USDC",
+        "amount": "0.010000"
+      },
+      "protocols": [
+        {
+          "x402": {}
+        },
+        {
+          "mpp": {}
+        }
+      ],
+      "networks": [
+        "arc",
+        "base"
+      ]
+    }
+  },
+  "externalDocs": {
+    "description": "Documentacion oficial Zumpay",
+    "url": "https://snip.zumpay.com.ar/docs"
+  },
+  "servers": [
+    {
+      "url": "https://snip.zumpay.com.ar"
+    }
+  ],
+  "paths": {
+    "/v1/arc/new-pairs": {
+      "get": {
+        "operationId": "getArcNewPairs",
+        "summary": "Obtiene pares y pools recien creadas en Arc",
+        "description": "Endpoint pago para agentes de IA. Devuelve un feed de pares nuevos filtrado por ventana temporal y liquidez minima inicial.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USDC",
+            "amount": "0.010000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {}
+            }
+          ],
+          "networks": [
+            "arc",
+            "base"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "time_window_seconds",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 60,
+              "minimum": 1,
+              "maximum": 86400
+            },
+            "description": "Ventana de tiempo hacia atras en segundos"
+          },
+          {
+            "name": "min_liquidity_usd",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "default": 500,
+              "minimum": 0
+            },
+            "description": "Filtro de liquidez minima depositada"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Feed de pares nuevos devuelto con exito.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewPairsResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required. Se requiere pago x402 o MPP para consultar el feed.",
+            "headers": {
+              "X-Payment-Required": {
+                "description": "Payment challenge compatible con agentes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "payment-required": {
+                "description": "Circle Gateway x402 payment challenge.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentRequiredResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TokenMetadata": {
+        "type": "object",
+        "required": [
+          "symbol",
+          "name",
+          "address"
+        ],
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "examples": [
+              "USDC"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "examples": [
+              "USD Coin"
+            ]
+          },
+          "address": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{40}$"
+          }
+        }
+      },
+      "Pair": {
+        "type": "object",
+        "required": [
+          "pair_address",
+          "token0",
+          "token1",
+          "initial_liquidity_usd",
+          "created_at_block",
+          "created_at_timestamp",
+          "seconds_ago",
+          "risk_hint"
+        ],
+        "properties": {
+          "pair_address": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{40}$"
+          },
+          "token0": {
+            "$ref": "#/components/schemas/TokenMetadata"
+          },
+          "token1": {
+            "$ref": "#/components/schemas/TokenMetadata"
+          },
+          "initial_liquidity_usd": {
+            "type": "number"
+          },
+          "created_at_block": {
+            "type": "integer"
+          },
+          "created_at_timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "seconds_ago": {
+            "type": "integer"
+          },
+          "risk_hint": {
+            "type": "string",
+            "enum": [
+              "LOW_INITIAL_RISK",
+              "MEDIUM_INITIAL_RISK",
+              "HIGH_INITIAL_RISK"
+            ]
+          }
+        }
+      },
+      "NewPairsResponse": {
+        "type": "object",
+        "required": [
+          "status",
+          "network",
+          "feed",
+          "query_filters",
+          "total_detected",
+          "pairs",
+          "timestamp"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "success"
+          },
+          "network": {
+            "type": "string",
+            "const": "Arc"
+          },
+          "feed": {
+            "type": "string",
+            "const": "live_pair_created"
+          },
+          "query_filters": {
+            "type": "object",
+            "required": [
+              "time_window_seconds",
+              "min_liquidity_usd"
+            ],
+            "properties": {
+              "time_window_seconds": {
+                "type": "integer"
+              },
+              "min_liquidity_usd": {
+                "type": "number"
+              }
+            }
+          },
+          "total_detected": {
+            "type": "integer"
+          },
+          "pairs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Pair"
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PaymentAccept": {
+        "type": "object",
+        "required": [
+          "scheme",
+          "network",
+          "currency",
+          "amount",
+          "payTo",
+          "protocols"
+        ],
+        "properties": {
+          "scheme": {
+            "type": "string",
+            "const": "exact"
+          },
+          "network": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string",
+            "const": "USDC"
+          },
+          "amount": {
+            "type": "string",
+            "const": "0.010000"
+          },
+          "payTo": {
+            "type": "string"
+          },
+          "protocols": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "x402",
+                "mpp"
+              ]
+            }
+          }
+        }
+      },
+      "PaymentRequiredResponse": {
+        "type": "object",
+        "required": [
+          "error",
+          "message",
+          "accepts"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "const": "payment_required"
+          },
+          "message": {
+            "type": "string"
+          },
+          "accepts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentAccept"
+            }
+          }
+        }
+      }
+    }
+  }
+}
