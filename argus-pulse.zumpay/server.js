@@ -10,8 +10,12 @@ const WALLET_ADDRESS =
   process.env.WALLET_ADDRESS || "0xF3aAD2304F711ad5f400Ad322442D67DeD3E8A25";
 const PRICE = "0.001";
 const PRICE_FIXED = "0.001000";
+const PRICE_USDC_ATOMIC = "1000";
 const CURRENCY = "USDC";
 const NETWORKS = ["arc", "base"];
+const ARC_USDC_ADDRESS = process.env.ARC_USDC_ADDRESS || "0x3600000000000000000000000000000000000000";
+const BASE_USDC_ADDRESS =
+  process.env.BASE_USDC_ADDRESS || "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const BACKGROUND_REFRESH_ENABLED = process.env.COLLECTOR_BACKGROUND_REFRESH !== "false";
 
 let gatewayMiddlewarePromise;
@@ -509,17 +513,25 @@ function sendManualPaymentRequired(res) {
       {
         scheme: "exact",
         network: "arc",
-        currency: CURRENCY,
-        amount: PRICE_FIXED,
+        maxAmountRequired: PRICE_USDC_ATOMIC,
+        asset: ARC_USDC_ADDRESS,
         payTo: WALLET_ADDRESS,
+        resource: "https://argus-pulse.zumpay.com.ar/v1/pulse",
+        description: `Argus Pulse API call priced at ${PRICE_FIXED} ${CURRENCY}.`,
+        mimeType: "application/json",
+        maxTimeoutSeconds: 60,
         protocols: ["x402", "mpp"]
       },
       {
         scheme: "exact",
         network: "base",
-        currency: CURRENCY,
-        amount: PRICE_FIXED,
+        maxAmountRequired: PRICE_USDC_ATOMIC,
+        asset: BASE_USDC_ADDRESS,
         payTo: WALLET_ADDRESS,
+        resource: "https://argus-pulse.zumpay.com.ar/v1/pulse",
+        description: `Argus Pulse API call priced at ${PRICE_FIXED} ${CURRENCY}.`,
+        mimeType: "application/json",
+        maxTimeoutSeconds: 60,
         protocols: ["x402", "mpp"]
       }
     ]
