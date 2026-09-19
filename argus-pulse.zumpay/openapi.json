@@ -1,0 +1,651 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Argus Pulse API",
+    "version": "0.1.0",
+    "description": "Real-time intelligence API for tokens launched on the Argus platform, built for autonomous AI agents.",
+    "contact": {
+      "email": "contacto@zumnova.com.ar"
+    },
+    "externalDocs": {
+      "description": "Argus Pulse API docs",
+      "url": "https://argus-pulse.zumpay.com.ar/docs"
+    },
+    "x-guidance": "Paid Argus intelligence feed for AI agents. Call /v1/pulse/fresh-launches for new launches, /v1/pulse/momentum for 24h volume and transaction leaders, and /v1/pulse/whale-radar for swaps over 1000 USD. Use timeframe and limit to keep responses compact.",
+    "x-payment-info": {
+      "price": {
+        "mode": "fixed",
+        "currency": "USDC",
+        "amount": "0.001000"
+      },
+      "protocols": [
+        {
+          "x402": {}
+        },
+        {
+          "mpp": {}
+        }
+      ],
+      "networks": [
+        "arc",
+        "base"
+      ]
+    }
+  },
+  "externalDocs": {
+    "description": "Argus Pulse API docs",
+    "url": "https://argus-pulse.zumpay.com.ar/docs"
+  },
+  "servers": [
+    {
+      "url": "https://argus-pulse.zumpay.com.ar"
+    }
+  ],
+  "paths": {
+    "/v1/pulse/fresh-launches": {
+      "get": {
+        "operationId": "getArgusFreshLaunches",
+        "summary": "Detect fresh token launches on Argus",
+        "description": "Paid x402 endpoint for agents. Returns tokens created within the requested timeframe on the Argus platform.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USDC",
+            "amount": "0.001000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {}
+            }
+          ],
+          "networks": [
+            "arc",
+            "base"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "timeframe",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "60m",
+              "pattern": "^\\d+(m|h|d)$",
+              "examples": [
+                "15m",
+                "60m",
+                "1h",
+                "24h"
+              ]
+            },
+            "description": "Lookback window for fresh launches. Use m, h or d units. Maximum 24h."
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 50
+            },
+            "description": "Maximum number of launches to return."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fresh launches returned successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FreshLaunchesResponse"
+                },
+                "examples": {
+                  "success": {
+                    "value": {
+                      "timestamp": 1726752000,
+                      "count": 2,
+                      "data": [
+                        {
+                          "tokenSymbol": "$PROXIMA",
+                          "tokenName": "Proxima",
+                          "contractAddress": "0xE92f111111111111111111111111111111115a56",
+                          "pairedWith": "USDC",
+                          "initialMarketCapUsd": 2680,
+                          "priceUsd": 0.000002681,
+                          "createdAt": "2026-09-19T18:23:00.000Z",
+                          "buyTaxPercent": 10,
+                          "sellTaxPercent": 10
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameter.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required. x402 or MPP payment is required before accessing the feed.",
+            "headers": {
+              "X-Payment-Required": {
+                "description": "Payment challenge for simple agents.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "WWW-Authenticate": {
+                "description": "MPP-compatible payment challenge.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentRequiredResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/pulse/momentum": {
+      "get": {
+        "operationId": "getArgusMomentum",
+        "summary": "Get Argus token momentum",
+        "description": "Paid x402 endpoint for agents. Returns tokens ranked by 24h USDC volume, transaction count and whale activity.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USDC",
+            "amount": "0.001000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {}
+            }
+          ],
+          "networks": [
+            "arc",
+            "base"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 50
+            },
+            "description": "Maximum number of momentum entries to return."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Momentum data returned successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MomentumResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required. x402 or MPP payment is required before accessing the feed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentRequiredResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/pulse/whale-radar": {
+      "get": {
+        "operationId": "getArgusWhaleRadar",
+        "summary": "Detect Argus whale transactions",
+        "description": "Paid x402 endpoint for agents. Returns recent Argus swaps larger than 1000 USD.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USDC",
+            "amount": "0.001000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {}
+            }
+          ],
+          "networks": [
+            "arc",
+            "base"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 50
+            },
+            "description": "Maximum number of whale transactions to return."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Whale radar data returned successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WhaleRadarResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required. x402 or MPP payment is required before accessing the feed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentRequiredResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "FreshLaunch": {
+        "type": "object",
+        "required": [
+          "tokenSymbol",
+          "tokenName",
+          "contractAddress",
+          "pairedWith",
+          "supply",
+          "initialMarketCapUsd",
+          "priceUsd",
+          "createdAt",
+          "buyTaxPercent",
+          "sellTaxPercent"
+        ],
+        "properties": {
+          "tokenSymbol": {
+            "type": "string",
+            "examples": [
+              "$PROXIMA"
+            ]
+          },
+          "tokenName": {
+            "type": "string",
+            "examples": [
+              "Proxima"
+            ]
+          },
+          "contractAddress": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{40}$"
+          },
+          "pairedWith": {
+            "type": "string",
+            "examples": [
+              "USDC"
+            ]
+          },
+          "supply": {
+            "type": "string",
+            "description": "Raw token supply as reported by the collector or subgraph."
+          },
+          "initialMarketCapUsd": {
+            "type": "number",
+            "minimum": 0
+          },
+          "priceUsd": {
+            "type": "number",
+            "minimum": 0
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "buyTaxPercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "sellTaxPercent": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100
+          }
+        }
+      },
+      "FreshLaunchesResponse": {
+        "type": "object",
+        "required": [
+          "timestamp",
+          "count",
+          "data"
+        ],
+        "properties": {
+          "timestamp": {
+            "type": "integer",
+            "description": "Unix timestamp in seconds."
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FreshLaunch"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/CollectorMeta"
+          }
+        }
+      },
+      "MomentumEntry": {
+        "type": "object",
+        "required": [
+          "tokenSymbol",
+          "tokenName",
+          "contractAddress",
+          "volume24hUsd",
+          "transactionCount24h",
+          "whaleTransactionCount24h",
+          "score",
+          "updatedAt"
+        ],
+        "properties": {
+          "tokenSymbol": {
+            "type": "string",
+            "examples": [
+              "$PROXIMA"
+            ]
+          },
+          "tokenName": {
+            "type": "string"
+          },
+          "contractAddress": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{40}$"
+          },
+          "volume24hUsd": {
+            "type": "number",
+            "minimum": 0
+          },
+          "transactionCount24h": {
+            "type": "number",
+            "minimum": 0
+          },
+          "whaleTransactionCount24h": {
+            "type": "number",
+            "minimum": 0
+          },
+          "score": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MomentumResponse": {
+        "type": "object",
+        "required": [
+          "timestamp",
+          "count",
+          "data"
+        ],
+        "properties": {
+          "timestamp": {
+            "type": "integer"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MomentumEntry"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/CollectorMeta"
+          }
+        }
+      },
+      "WhaleTransaction": {
+        "type": "object",
+        "required": [
+          "id",
+          "tokenSymbol",
+          "usdValue",
+          "timestamp",
+          "flag"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "tokenSymbol": {
+            "type": "string"
+          },
+          "tokenAddress": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "pattern": "^0x[a-fA-F0-9]{40}$"
+          },
+          "usdValue": {
+            "type": "number",
+            "minimum": 1000
+          },
+          "transactionHash": {
+            "type": "string"
+          },
+          "trader": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "flag": {
+            "type": "string",
+            "examples": [
+              "WHALE_TRANSACTION"
+            ]
+          }
+        }
+      },
+      "WhaleRadarResponse": {
+        "type": "object",
+        "required": [
+          "timestamp",
+          "count",
+          "data"
+        ],
+        "properties": {
+          "timestamp": {
+            "type": "integer"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WhaleTransaction"
+            }
+          },
+          "meta": {
+            "$ref": "#/components/schemas/CollectorMeta"
+          }
+        }
+      },
+      "CollectorMeta": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "lastUpdatedAt": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date-time"
+          },
+          "maxEntries": {
+            "type": "integer"
+          },
+          "whaleUsdThreshold": {
+            "type": "number"
+          }
+        }
+      },
+      "PaymentAccept": {
+        "type": "object",
+        "required": [
+          "scheme",
+          "network",
+          "currency",
+          "amount",
+          "payTo",
+          "protocols"
+        ],
+        "properties": {
+          "scheme": {
+            "type": "string",
+            "examples": [
+              "exact"
+            ]
+          },
+          "network": {
+            "type": "string",
+            "examples": [
+              "arc",
+              "base"
+            ]
+          },
+          "currency": {
+            "type": "string",
+            "examples": [
+              "USDC"
+            ]
+          },
+          "amount": {
+            "type": "string",
+            "examples": [
+              "0.001000"
+            ]
+          },
+          "payTo": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{40}$"
+          },
+          "protocols": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "x402",
+                "mpp"
+              ]
+            }
+          }
+        }
+      },
+      "PaymentRequiredResponse": {
+        "type": "object",
+        "required": [
+          "error",
+          "message",
+          "accepts"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "examples": [
+              "payment_required"
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "accepts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentAccept"
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error",
+          "message"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

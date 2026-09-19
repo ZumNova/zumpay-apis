@@ -7,5 +7,6 @@ Este repo queda separado de la dApp principal `zumpay.com.ar`. Aca viven las API
 - `api.zumpay`: datos financieros y liquidez de pools.
 - `risk.zumpay`: analisis de riesgo Anti-Rugpull.
 - `snip.zumpay`: feed de pares y pools nuevos.
+- `argus-pulse.zumpay`: feed de tokens recien lanzados en Argus.
 
 Cada carpeta es un proyecto Vercel independiente.
