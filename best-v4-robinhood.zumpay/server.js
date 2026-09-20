@@ -529,9 +529,24 @@ function sendManualPaymentRequired(req, res) {
   res.set("Payment-Required", Buffer.from(JSON.stringify(paymentRequired)).toString("base64"));
   res.set("X-Payment-Required", `${CURRENCY} amount=${PRICE} address=${WALLET_ADDRESS}`);
   res.set("X-Accepts-Payment", "x402");
-  res.set("WWW-Authenticate", 'x402 realm="BEST V4 ROBINHOOD"');
+  res.set("WWW-Authenticate", buildWwwAuthenticateChallenge(paymentRequired));
 
   return res.status(402).json(paymentRequired);
+}
+
+function buildWwwAuthenticateChallenge(paymentRequired) {
+  const request = Buffer.from(JSON.stringify(paymentRequired)).toString("base64url");
+  const id = Buffer.from(paymentRequired.resource.url).toString("base64url").slice(0, 24);
+  const expires = new Date(Date.now() + 60_000).toISOString();
+
+  return [
+    'Payment realm="BEST V4 ROBINHOOD"',
+    `id="${id}"`,
+    'method="x402"',
+    'intent="pay-per-request"',
+    `expires="${expires}"`,
+    `request="${request}"`
+  ].join(", ");
 }
 
 function buildPaymentRequired(resourceUrl) {
