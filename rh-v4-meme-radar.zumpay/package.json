@@ -1,0 +1,20 @@
+{
+  "name": "zumpay-rh-v4-meme-radar-api",
+  "version": "0.1.0",
+  "description": "Paid Robinhood V4 meme pool radar API for high-risk fast-entry bots and AI agents.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@circle-fin/x402-batching": "^3.5.0",
+    "@x402/core": "^2.26.0",
+    "@x402/evm": "^2.26.0",
+    "ethers": "^6.16.0",
+    "express": "^4.21.2"
+  }
+}

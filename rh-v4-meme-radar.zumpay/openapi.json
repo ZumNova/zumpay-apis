@@ -1,0 +1,424 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "RH V4 Meme Radar API",
+    "version": "0.1.0",
+    "description": "High-risk, high-frequency Robinhood V4 meme-pool radar for fast-entry bots and AI agents.",
+    "contact": {
+      "email": "contacto@zumnova.com.ar"
+    },
+    "externalDocs": {
+      "description": "RH V4 Meme Radar docs",
+      "url": "https://rh-v4-meme-radar.zumpay.com.ar/docs"
+    },
+    "x-guidance": "Paid high-risk meme-pool feed for bots and AI agents on Robinhood V4. Call /v1/robinhood/v4/meme-pools for curated active meme pools, /v1/robinhood/v4/meme-momentum for short-window movement, /v1/robinhood/v4/new-meme-pools for fresh launches, or /v1/robinhood/v4/meme-pool-check with pool_id to verify a specific pool on-chain. Use only for fast-entry/high-risk strategies.",
+    "x-payment-info": {
+      "price": {
+        "mode": "fixed",
+        "currency": "USDC",
+        "amount": "0.002000"
+      },
+      "protocols": [
+        {
+          "x402": {}
+        },
+        {
+          "mpp": {}
+        }
+      ],
+      "networks": [
+        "arc",
+        "base"
+      ]
+    }
+  },
+  "externalDocs": {
+    "description": "RH V4 Meme Radar docs",
+    "url": "https://rh-v4-meme-radar.zumpay.com.ar/docs"
+  },
+  "servers": [
+    {
+      "url": "https://rh-v4-meme-radar.zumpay.com.ar"
+    }
+  ],
+  "paths": {
+    "/v1/robinhood/v4/meme-pools": {
+      "get": {
+        "operationId": "getRobinhoodV4MemePools",
+        "summary": "Get active high-risk Robinhood V4 meme pools",
+        "description": "Paid x402 endpoint for fast bots. Returns compact curated meme-pool signals with liquidity, 5m/1h activity and risk flags.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USDC",
+            "amount": "0.002000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {}
+            }
+          ],
+          "networks": [
+            "arc",
+            "base"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          {
+            "name": "min_liquidity_usd",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "min_volume_5m_usd",
+            "in": "query",
+            "schema": {
+              "type": "number",
+              "default": 0,
+              "minimum": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Meme-pool radar returned successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemePoolsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameter."
+          },
+          "402": {
+            "description": "Payment Required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentRequiredResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/robinhood/v4/meme-momentum": {
+      "get": {
+        "operationId": "getRobinhoodV4MemeMomentum",
+        "summary": "Get Robinhood V4 meme-pool momentum",
+        "description": "Paid endpoint returning meme pools ranked by 5-minute volume, transaction count and velocity score.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USDC",
+            "amount": "0.002000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {}
+            }
+          ],
+          "networks": [
+            "arc",
+            "base"
+          ]
+        },
+        "responses": {
+          "200": {
+            "description": "Momentum feed returned successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemePoolsResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required."
+          }
+        }
+      }
+    },
+    "/v1/robinhood/v4/new-meme-pools": {
+      "get": {
+        "operationId": "getRobinhoodV4NewMemePools",
+        "summary": "Get fresh Robinhood V4 meme pools",
+        "description": "Paid endpoint returning meme pools whose age is inside a short time window.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USDC",
+            "amount": "0.002000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {}
+            }
+          ],
+          "networks": [
+            "arc",
+            "base"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "max_age_minutes",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "default": 60,
+              "minimum": 1,
+              "maximum": 1440
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Fresh meme pools returned successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemePoolsResponse"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required."
+          }
+        }
+      }
+    },
+    "/v1/robinhood/v4/meme-pool-check": {
+      "get": {
+        "operationId": "checkRobinhoodV4MemePool",
+        "summary": "Verify a Robinhood V4 pool id on-chain",
+        "description": "Paid endpoint for bots that already have a candidate pool_id and need a fast on-chain active/liquidity check.",
+        "x-payment-info": {
+          "price": {
+            "mode": "fixed",
+            "currency": "USDC",
+            "amount": "0.002000"
+          },
+          "protocols": [
+            {
+              "x402": {}
+            },
+            {
+              "mpp": {}
+            }
+          ],
+          "networks": [
+            "arc",
+            "base"
+          ]
+        },
+        "parameters": [
+          {
+            "name": "pool_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^0x[a-fA-F0-9]{64}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Pool check returned successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PoolCheckResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid pool_id."
+          },
+          "402": {
+            "description": "Payment Required."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MemePoolsResponse": {
+        "type": "object",
+        "required": ["status", "network", "product", "feed", "total_detected", "pools", "timestamp"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "success"
+          },
+          "network": {
+            "type": "string",
+            "const": "Robinhood"
+          },
+          "product": {
+            "type": "string",
+            "const": "RH V4 Meme Radar"
+          },
+          "feed": {
+            "type": "string"
+          },
+          "total_detected": {
+            "type": "integer"
+          },
+          "pools": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MemePool"
+            }
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MemePool": {
+        "type": "object",
+        "required": ["symbol", "pool_id", "paired_with", "risk_level", "bot_hint"],
+        "properties": {
+          "symbol": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "pool_id": {
+            "type": "string"
+          },
+          "paired_with": {
+            "type": "string"
+          },
+          "liquidity_usd": {
+            "type": "number"
+          },
+          "volume_5m_usd": {
+            "type": "number"
+          },
+          "tx_count_5m": {
+            "type": "integer"
+          },
+          "age_minutes": {
+            "type": ["integer", "null"]
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "fee_label": {
+            "type": ["string", "null"]
+          },
+          "lp_fee": {
+            "type": ["integer", "null"]
+          },
+          "tick": {
+            "type": ["integer", "null"]
+          },
+          "liquidity_raw": {
+            "type": ["string", "null"]
+          },
+          "risk_level": {
+            "type": "string",
+            "enum": ["HIGH", "EXTREME"]
+          },
+          "bot_hint": {
+            "type": "string"
+          }
+        }
+      },
+      "PoolCheckResponse": {
+        "type": "object",
+        "required": ["status", "network", "pool_id", "active", "timestamp"],
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "success"
+          },
+          "network": {
+            "type": "string",
+            "const": "Robinhood"
+          },
+          "pool_id": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "sqrtPriceX96": {
+            "type": "string"
+          },
+          "liquidity_raw": {
+            "type": "string"
+          },
+          "tick": {
+            "type": "integer"
+          },
+          "lp_fee": {
+            "type": "integer"
+          },
+          "risk_note": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PaymentRequiredResponse": {
+        "type": "object",
+        "required": ["error", "message", "accepts"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "const": "payment_required"
+          },
+          "message": {
+            "type": "string"
+          },
+          "accepts": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    }
+  }
+}
