@@ -52,6 +52,11 @@
         "operationId": "getRobinhoodV4MemePools",
         "summary": "Get active high-risk Robinhood V4 meme pools",
         "description": "Paid x402 endpoint for fast bots. Returns compact curated meme-pool signals with live raw liquidity, fee tier, risk/reward scoring and decision hints.",
+        "security": [
+          {
+            "x402Payment": []
+          }
+        ],
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -133,6 +138,11 @@
         "operationId": "getRobinhoodV4MemeMomentum",
         "summary": "Get Robinhood V4 meme-pool momentum",
         "description": "Paid endpoint returning meme pools ranked by reward_score using live on-chain state, fee tier, pair type and available activity signals.",
+        "security": [
+          {
+            "x402Payment": []
+          }
+        ],
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -174,6 +184,11 @@
         "operationId": "getRobinhoodV4NewMemePools",
         "summary": "Get fresh Robinhood V4 meme pools",
         "description": "Paid endpoint returning meme pools whose age is inside a short time window.",
+        "security": [
+          {
+            "x402Payment": []
+          }
+        ],
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -227,6 +242,11 @@
         "operationId": "checkRobinhoodV4MemePool",
         "summary": "Verify a Robinhood V4 pool id on-chain",
         "description": "Paid endpoint for bots that already have a candidate pool_id and need a fast on-chain active/liquidity check.",
+        "security": [
+          {
+            "x402Payment": []
+          }
+        ],
         "x-payment-info": {
           "price": {
             "mode": "fixed",

@@ -695,7 +695,7 @@ function badRequest(message) {
 
 async function paymentGate(req, res, next) {
   if (!req.headers["x-payment"] && !req.headers.authorization) {
-    return sendManualPaymentRequired(res);
+    return sendManualPaymentRequired(req, res);
   }
 
   if (req.headers.authorization && !req.headers["x-payment"]) return next();
@@ -704,7 +704,7 @@ async function paymentGate(req, res, next) {
     const middleware = await getGatewayMiddleware();
     return middleware(req, res, next);
   } catch (_err) {
-    if (!req.headers["x-payment"]) return sendManualPaymentRequired(res);
+    if (!req.headers["x-payment"]) return sendManualPaymentRequired(req, res);
     return next(_err);
   }
 }
@@ -728,19 +728,19 @@ async function getGatewayMiddleware() {
   return gatewayMiddlewarePromise;
 }
 
-function sendManualPaymentRequired(res) {
+function sendManualPaymentRequired(req, res) {
+  const resource = `${SERVICE_URL}${req.originalUrl}`;
   const body = {
+    x402Version: 1,
     error: "payment_required",
     message: "Payment is required to access RH V4 Meme Radar.",
-    accepts: buildPaymentAccepts(`${SERVICE_URL}/v1/robinhood/v4/meme-pools`)
+    accepts: buildPaymentAccepts(resource)
   };
 
   res.set("X-Payment-Required", `${CURRENCY} amount=${PRICE} address=${WALLET_ADDRESS}`);
+  res.set("X-Accepts-Payment", "x402");
   res.set("Payment-Required", Buffer.from(JSON.stringify(body)).toString("base64"));
-  res.set(
-    "WWW-Authenticate",
-    `Payment realm="RH V4 Meme Radar", currency="${CURRENCY}", amount="${PRICE}"`
-  );
+  res.set("WWW-Authenticate", `x402 realm="RH V4 Meme Radar"`);
 
   return res.status(402).json(body);
 }
@@ -756,12 +756,40 @@ function buildPaymentAccepts(resource) {
     mimeType: "application/json",
     maxTimeoutSeconds: 60,
     protocols: ["x402", "mpp"],
+    extra: {
+      name: "RH V4 Meme Radar",
+      description:
+        "High-risk Robinhood V4 meme-pool radar with live on-chain state and risk/reward scoring.",
+      mimeType: "application/json",
+      inputSchema: {
+        type: "object",
+        properties: {
+          limit: { type: "integer", minimum: 1, maximum: 50, default: 10 },
+          min_liquidity_usd: { type: "number", minimum: 0, default: 0 },
+          min_volume_5m_usd: { type: "number", minimum: 0, default: 0 },
+          max_age_minutes: { type: "integer", minimum: 1, maximum: 1440, default: 60 },
+          pool_id: { type: "string", pattern: "^0x[a-fA-F0-9]{64}$" }
+        }
+      },
+      outputSchema: {
+        type: "object",
+        properties: {
+          status: { type: "string" },
+          network: { type: "string" },
+          pools: { type: "array" },
+          risk_score: { type: "integer" },
+          reward_score: { type: "integer" },
+          edge_score: { type: "integer" },
+          bot_decision: { type: "string" }
+        }
+      }
+    },
     extensions: {
       bazaar: {
         info: {
           title: "RH V4 Meme Radar",
           category: "market-data",
-          input: {
+          inputSchema: {
             type: "object",
             properties: {
               limit: { type: "integer", minimum: 1, maximum: 50, default: 10 },
