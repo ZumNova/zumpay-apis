@@ -11,7 +11,7 @@ const PRICE = "0.001";
 const PRICE_FIXED = "0.001000";
 const PRICE_USDC_ATOMIC = "1000";
 const CURRENCY = "USDC";
-const NETWORKS = ["arc", "base"];
+const NETWORKS = ["base"];
 const ROBINHOOD_CHAIN_ID = 4663;
 const ROBINHOOD_POOL_MANAGER = "0x8366a39cc670b4001a1121b8f6a443a643e40951";
 const ROBINHOOD_STATE_VIEW = "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b";
@@ -356,6 +356,15 @@ app.get("/", (_req, res) => {
   });
 });
 
+app.get("/favicon.ico", (_req, res) => {
+  res
+    .status(200)
+    .type("image/svg+xml")
+    .send(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#071d49"/><path fill="#46d39a" d="M14 42c7-20 24-28 38-20-15 0-25 9-31 26z"/><path fill="#fff" d="M27 44c6-14 16-18 24-12-9 0-15 5-19 16z"/></svg>'
+    );
+});
+
 app.get("/docs", (_req, res) => {
   res.status(200).json({
     name: "BEST V4 ROBINHOOD Docs",
@@ -475,7 +484,7 @@ function badRequest(message) {
 
 async function paymentGate(req, res, next) {
   if (!req.headers["x-payment"] && !req.headers.authorization) {
-    return sendManualPaymentRequired(res);
+    return sendManualPaymentRequired(req, res);
   }
 
   if (req.headers.authorization && !req.headers["x-payment"]) {
@@ -487,7 +496,7 @@ async function paymentGate(req, res, next) {
     return middleware(req, res, next);
   } catch (_err) {
     if (!req.headers["x-payment"]) {
-      return sendManualPaymentRequired(res);
+      return sendManualPaymentRequired(req, res);
     }
 
     return next(_err);
@@ -513,43 +522,103 @@ async function getGatewayMiddleware() {
   return gatewayMiddlewarePromise;
 }
 
-function sendManualPaymentRequired(res) {
-  res.set("X-Payment-Required", `${CURRENCY} amount=${PRICE} address=${WALLET_ADDRESS}`);
-  res.set(
-    "WWW-Authenticate",
-    `Payment realm="BEST V4 ROBINHOOD", currency="${CURRENCY}", amount="${PRICE}"`
-  );
+function sendManualPaymentRequired(req, res) {
+  const paymentRequired = buildPaymentRequired(`${SERVICE_URL}${req.originalUrl}`);
 
-  return res.status(402).json({
-    error: "payment_required",
-    message: "Payment is required to access BEST V4 ROBINHOOD pool intelligence.",
+  res.set("PAYMENT-REQUIRED", Buffer.from(JSON.stringify(paymentRequired)).toString("base64"));
+  res.set("Payment-Required", Buffer.from(JSON.stringify(paymentRequired)).toString("base64"));
+  res.set("X-Payment-Required", `${CURRENCY} amount=${PRICE} address=${WALLET_ADDRESS}`);
+  res.set("X-Accepts-Payment", "x402");
+  res.set("WWW-Authenticate", 'x402 realm="BEST V4 ROBINHOOD"');
+
+  return res.status(402).json(paymentRequired);
+}
+
+function buildPaymentRequired(resourceUrl) {
+  return {
+    x402Version: 2,
+    error: "PAYMENT-SIGNATURE header is required",
+    resource: {
+      url: resourceUrl,
+      description:
+        "Lightweight Robinhood V4 pool-intelligence feed for bots seeking active high-volume pools.",
+      mimeType: "application/json",
+      serviceName: "BEST V4 ROBINHOOD",
+      tags: ["market-data", "defi", "robinhood", "v4-pools", "trading"],
+      iconUrl: `${SERVICE_URL}/favicon.ico`
+    },
     accepts: [
       {
         scheme: "exact",
-        network: "arc",
-        maxAmountRequired: PRICE_USDC_ATOMIC,
-        asset: ARC_USDC_ADDRESS,
-        payTo: WALLET_ADDRESS,
-        resource: `${SERVICE_URL}/v1/robinhood/v4/best-pools`,
-        description: `BEST V4 ROBINHOOD API call priced at ${PRICE_FIXED} ${CURRENCY}.`,
-        mimeType: "application/json",
-        maxTimeoutSeconds: 60,
-        protocols: ["x402", "mpp"]
-      },
-      {
-        scheme: "exact",
-        network: "base",
-        maxAmountRequired: PRICE_USDC_ATOMIC,
+        network: "eip155:8453",
+        amount: PRICE_USDC_ATOMIC,
         asset: BASE_USDC_ADDRESS,
         payTo: WALLET_ADDRESS,
-        resource: `${SERVICE_URL}/v1/robinhood/v4/best-pools`,
-        description: `BEST V4 ROBINHOOD API call priced at ${PRICE_FIXED} ${CURRENCY}.`,
-        mimeType: "application/json",
         maxTimeoutSeconds: 60,
-        protocols: ["x402", "mpp"]
+        extra: {
+          name: CURRENCY,
+          version: "2",
+          resource: resourceUrl
+        }
       }
-    ]
-  });
+    ],
+    extensions: buildPaymentExtensions()
+  };
+}
+
+function buildPaymentExtensions() {
+  const input = {
+    type: "object",
+    properties: {
+      limit: { type: "integer", minimum: 1, maximum: 20, default: 5 },
+      min_volume_24h_usd: { type: "number", minimum: 0, default: 0 },
+      min_liquidity_usd: { type: "number", minimum: 0, default: 0 },
+      token: { type: "string" }
+    }
+  };
+  const output = {
+    type: "object",
+    properties: {
+      status: { type: "string" },
+      network: { type: "string" },
+      product: { type: "string" },
+      total_detected: { type: "integer" },
+      pools: { type: "array" }
+    }
+  };
+
+  return {
+    bazaar: {
+      schema: {
+        type: "object",
+        required: ["title", "category", "input", "output"],
+        properties: {
+          title: { type: "string" },
+          category: { type: "string" },
+          input: {
+            type: "object",
+            properties: {
+              queryParams: input
+            }
+          },
+          output: {
+            type: "object",
+            properties: {
+              example: output
+            }
+          }
+        }
+      },
+      info: {
+        title: "BEST V4 ROBINHOOD",
+        category: "market-data",
+        input: { queryParams: input },
+        output: { example: output },
+        inputSchema: input,
+        outputSchema: output
+      }
+    }
+  };
 }
 
 app.use((req, res) => {

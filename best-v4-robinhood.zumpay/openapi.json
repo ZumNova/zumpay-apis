@@ -15,21 +15,269 @@
     "x-payment-info": {
       "price": {
         "mode": "fixed",
-        "currency": "USDC",
-        "amount": "0.001000"
+        "currency": "USD",
+        "amount": "0.001"
       },
       "protocols": [
-        {
-          "x402": {}
-        },
-        {
-          "mpp": {}
-        }
+        "x402"
       ],
       "networks": [
-        "arc",
-        "base"
-      ]
+        "eip155:8453"
+      ],
+      "extensions": {
+        "bazaar": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "input": {
+                "type": "object",
+                "properties": {
+                  "queryParams": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "limit": {
+                        "type": "integer",
+                        "default": 5,
+                        "minimum": 1,
+                        "maximum": 20,
+                        "description": "Maximum number of pools to return."
+                      },
+                      "min_volume_24h_usd": {
+                        "type": "number",
+                        "default": 0,
+                        "minimum": 0,
+                        "description": "Minimum 24h USD volume filter."
+                      },
+                      "min_liquidity_usd": {
+                        "type": "number",
+                        "default": 0,
+                        "minimum": 0,
+                        "description": "Minimum USD liquidity filter."
+                      },
+                      "token": {
+                        "type": "string",
+                        "description": "Optional token symbol, token name or token address filter."
+                      }
+                    }
+                  }
+                }
+              },
+              "output": {
+                "type": "object",
+                "properties": {
+                  "example": {
+                    "status": "success",
+                    "network": "Robinhood",
+                    "product": "BEST V4 ROBINHOOD",
+                    "feed": "best_v4_pools",
+                    "query_filters": {
+                      "limit": 5,
+                      "minVolume24hUsd": 50000,
+                      "minLiquidityUsd": 0,
+                      "token": null
+                    },
+                    "total_detected": 2,
+                    "pools": [
+                      {
+                        "pool_id": "0xfcfae8fa0bd6da961bcf5d990f27690932deac4f093e99bf3e871691c6586593",
+                        "version": "v4",
+                        "pool_type": "concentrated_liquidity",
+                        "chain_id": 4663,
+                        "pool_manager": "0x8366a39cc670b4001a1121b8f6a443a643e40951",
+                        "state_view": "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b",
+                        "token0": {
+                          "symbol": "WETH",
+                          "name": "Wrapped Ether",
+                          "address": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+                          "decimals": 18
+                        },
+                        "token1": {
+                          "symbol": "USDG",
+                          "name": "USDG",
+                          "address": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+                          "decimals": 6
+                        },
+                        "fee_tier_bps": 5,
+                        "tick_spacing": 10,
+                        "liquidity_raw": "11481091544566761",
+                        "liquidity_usd": 425000,
+                        "volume_1h_usd": 28800,
+                        "volume_24h_usd": 392000,
+                        "tx_count_24h": 2310,
+                        "active": true,
+                        "health": "STRONG",
+                        "bot_hint": "DEEPEST_ROUTE"
+                      }
+                    ],
+                    "timestamp": "2026-09-19T18:23:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "info": {
+            "input": {
+              "queryParams": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "default": 5,
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Maximum number of pools to return."
+                  },
+                  "min_volume_24h_usd": {
+                    "type": "number",
+                    "default": 0,
+                    "minimum": 0,
+                    "description": "Minimum 24h USD volume filter."
+                  },
+                  "min_liquidity_usd": {
+                    "type": "number",
+                    "default": 0,
+                    "minimum": 0,
+                    "description": "Minimum USD liquidity filter."
+                  },
+                  "token": {
+                    "type": "string",
+                    "description": "Optional token symbol, token name or token address filter."
+                  }
+                }
+              }
+            },
+            "output": {
+              "example": {
+                "status": "success",
+                "network": "Robinhood",
+                "product": "BEST V4 ROBINHOOD",
+                "feed": "best_v4_pools",
+                "query_filters": {
+                  "limit": 5,
+                  "minVolume24hUsd": 50000,
+                  "minLiquidityUsd": 0,
+                  "token": null
+                },
+                "total_detected": 2,
+                "pools": [
+                  {
+                    "pool_id": "0xfcfae8fa0bd6da961bcf5d990f27690932deac4f093e99bf3e871691c6586593",
+                    "version": "v4",
+                    "pool_type": "concentrated_liquidity",
+                    "chain_id": 4663,
+                    "pool_manager": "0x8366a39cc670b4001a1121b8f6a443a643e40951",
+                    "state_view": "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b",
+                    "token0": {
+                      "symbol": "WETH",
+                      "name": "Wrapped Ether",
+                      "address": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+                      "decimals": 18
+                    },
+                    "token1": {
+                      "symbol": "USDG",
+                      "name": "USDG",
+                      "address": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+                      "decimals": 6
+                    },
+                    "fee_tier_bps": 5,
+                    "tick_spacing": 10,
+                    "liquidity_raw": "11481091544566761",
+                    "liquidity_usd": 425000,
+                    "volume_1h_usd": 28800,
+                    "volume_24h_usd": 392000,
+                    "tx_count_24h": 2310,
+                    "active": true,
+                    "health": "STRONG",
+                    "bot_hint": "DEEPEST_ROUTE"
+                  }
+                ],
+                "timestamp": "2026-09-19T18:23:00.000Z"
+              }
+            }
+          },
+          "inputSchema": {
+            "queryParams": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "limit": {
+                  "type": "integer",
+                  "default": 5,
+                  "minimum": 1,
+                  "maximum": 20,
+                  "description": "Maximum number of pools to return."
+                },
+                "min_volume_24h_usd": {
+                  "type": "number",
+                  "default": 0,
+                  "minimum": 0,
+                  "description": "Minimum 24h USD volume filter."
+                },
+                "min_liquidity_usd": {
+                  "type": "number",
+                  "default": 0,
+                  "minimum": 0,
+                  "description": "Minimum USD liquidity filter."
+                },
+                "token": {
+                  "type": "string",
+                  "description": "Optional token symbol, token name or token address filter."
+                }
+              }
+            }
+          },
+          "outputSchema": {
+            "example": {
+              "status": "success",
+              "network": "Robinhood",
+              "product": "BEST V4 ROBINHOOD",
+              "feed": "best_v4_pools",
+              "query_filters": {
+                "limit": 5,
+                "minVolume24hUsd": 50000,
+                "minLiquidityUsd": 0,
+                "token": null
+              },
+              "total_detected": 2,
+              "pools": [
+                {
+                  "pool_id": "0xfcfae8fa0bd6da961bcf5d990f27690932deac4f093e99bf3e871691c6586593",
+                  "version": "v4",
+                  "pool_type": "concentrated_liquidity",
+                  "chain_id": 4663,
+                  "pool_manager": "0x8366a39cc670b4001a1121b8f6a443a643e40951",
+                  "state_view": "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b",
+                  "token0": {
+                    "symbol": "WETH",
+                    "name": "Wrapped Ether",
+                    "address": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+                    "decimals": 18
+                  },
+                  "token1": {
+                    "symbol": "USDG",
+                    "name": "USDG",
+                    "address": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+                    "decimals": 6
+                  },
+                  "fee_tier_bps": 5,
+                  "tick_spacing": 10,
+                  "liquidity_raw": "11481091544566761",
+                  "liquidity_usd": 425000,
+                  "volume_1h_usd": 28800,
+                  "volume_24h_usd": 392000,
+                  "tx_count_24h": 2310,
+                  "active": true,
+                  "health": "STRONG",
+                  "bot_hint": "DEEPEST_ROUTE"
+                }
+              ],
+              "timestamp": "2026-09-19T18:23:00.000Z"
+            }
+          }
+        }
+      }
     }
   },
   "externalDocs": {
@@ -50,21 +298,269 @@
         "x-payment-info": {
           "price": {
             "mode": "fixed",
-            "currency": "USDC",
-            "amount": "0.001000"
+            "currency": "USD",
+            "amount": "0.001"
           },
           "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {}
-            }
+            "x402"
           ],
           "networks": [
-            "arc",
-            "base"
-          ]
+            "eip155:8453"
+          ],
+          "extensions": {
+            "bazaar": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "queryParams": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "limit": {
+                            "type": "integer",
+                            "default": 5,
+                            "minimum": 1,
+                            "maximum": 20,
+                            "description": "Maximum number of pools to return."
+                          },
+                          "min_volume_24h_usd": {
+                            "type": "number",
+                            "default": 0,
+                            "minimum": 0,
+                            "description": "Minimum 24h USD volume filter."
+                          },
+                          "min_liquidity_usd": {
+                            "type": "number",
+                            "default": 0,
+                            "minimum": 0,
+                            "description": "Minimum USD liquidity filter."
+                          },
+                          "token": {
+                            "type": "string",
+                            "description": "Optional token symbol, token name or token address filter."
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "output": {
+                    "type": "object",
+                    "properties": {
+                      "example": {
+                        "status": "success",
+                        "network": "Robinhood",
+                        "product": "BEST V4 ROBINHOOD",
+                        "feed": "best_v4_pools",
+                        "query_filters": {
+                          "limit": 5,
+                          "minVolume24hUsd": 50000,
+                          "minLiquidityUsd": 0,
+                          "token": null
+                        },
+                        "total_detected": 2,
+                        "pools": [
+                          {
+                            "pool_id": "0xfcfae8fa0bd6da961bcf5d990f27690932deac4f093e99bf3e871691c6586593",
+                            "version": "v4",
+                            "pool_type": "concentrated_liquidity",
+                            "chain_id": 4663,
+                            "pool_manager": "0x8366a39cc670b4001a1121b8f6a443a643e40951",
+                            "state_view": "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b",
+                            "token0": {
+                              "symbol": "WETH",
+                              "name": "Wrapped Ether",
+                              "address": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+                              "decimals": 18
+                            },
+                            "token1": {
+                              "symbol": "USDG",
+                              "name": "USDG",
+                              "address": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+                              "decimals": 6
+                            },
+                            "fee_tier_bps": 5,
+                            "tick_spacing": 10,
+                            "liquidity_raw": "11481091544566761",
+                            "liquidity_usd": 425000,
+                            "volume_1h_usd": 28800,
+                            "volume_24h_usd": 392000,
+                            "tx_count_24h": 2310,
+                            "active": true,
+                            "health": "STRONG",
+                            "bot_hint": "DEEPEST_ROUTE"
+                          }
+                        ],
+                        "timestamp": "2026-09-19T18:23:00.000Z"
+                      }
+                    }
+                  }
+                }
+              },
+              "info": {
+                "input": {
+                  "queryParams": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "limit": {
+                        "type": "integer",
+                        "default": 5,
+                        "minimum": 1,
+                        "maximum": 20,
+                        "description": "Maximum number of pools to return."
+                      },
+                      "min_volume_24h_usd": {
+                        "type": "number",
+                        "default": 0,
+                        "minimum": 0,
+                        "description": "Minimum 24h USD volume filter."
+                      },
+                      "min_liquidity_usd": {
+                        "type": "number",
+                        "default": 0,
+                        "minimum": 0,
+                        "description": "Minimum USD liquidity filter."
+                      },
+                      "token": {
+                        "type": "string",
+                        "description": "Optional token symbol, token name or token address filter."
+                      }
+                    }
+                  }
+                },
+                "output": {
+                  "example": {
+                    "status": "success",
+                    "network": "Robinhood",
+                    "product": "BEST V4 ROBINHOOD",
+                    "feed": "best_v4_pools",
+                    "query_filters": {
+                      "limit": 5,
+                      "minVolume24hUsd": 50000,
+                      "minLiquidityUsd": 0,
+                      "token": null
+                    },
+                    "total_detected": 2,
+                    "pools": [
+                      {
+                        "pool_id": "0xfcfae8fa0bd6da961bcf5d990f27690932deac4f093e99bf3e871691c6586593",
+                        "version": "v4",
+                        "pool_type": "concentrated_liquidity",
+                        "chain_id": 4663,
+                        "pool_manager": "0x8366a39cc670b4001a1121b8f6a443a643e40951",
+                        "state_view": "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b",
+                        "token0": {
+                          "symbol": "WETH",
+                          "name": "Wrapped Ether",
+                          "address": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+                          "decimals": 18
+                        },
+                        "token1": {
+                          "symbol": "USDG",
+                          "name": "USDG",
+                          "address": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+                          "decimals": 6
+                        },
+                        "fee_tier_bps": 5,
+                        "tick_spacing": 10,
+                        "liquidity_raw": "11481091544566761",
+                        "liquidity_usd": 425000,
+                        "volume_1h_usd": 28800,
+                        "volume_24h_usd": 392000,
+                        "tx_count_24h": 2310,
+                        "active": true,
+                        "health": "STRONG",
+                        "bot_hint": "DEEPEST_ROUTE"
+                      }
+                    ],
+                    "timestamp": "2026-09-19T18:23:00.000Z"
+                  }
+                }
+              },
+              "inputSchema": {
+                "queryParams": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "limit": {
+                      "type": "integer",
+                      "default": 5,
+                      "minimum": 1,
+                      "maximum": 20,
+                      "description": "Maximum number of pools to return."
+                    },
+                    "min_volume_24h_usd": {
+                      "type": "number",
+                      "default": 0,
+                      "minimum": 0,
+                      "description": "Minimum 24h USD volume filter."
+                    },
+                    "min_liquidity_usd": {
+                      "type": "number",
+                      "default": 0,
+                      "minimum": 0,
+                      "description": "Minimum USD liquidity filter."
+                    },
+                    "token": {
+                      "type": "string",
+                      "description": "Optional token symbol, token name or token address filter."
+                    }
+                  }
+                }
+              },
+              "outputSchema": {
+                "example": {
+                  "status": "success",
+                  "network": "Robinhood",
+                  "product": "BEST V4 ROBINHOOD",
+                  "feed": "best_v4_pools",
+                  "query_filters": {
+                    "limit": 5,
+                    "minVolume24hUsd": 50000,
+                    "minLiquidityUsd": 0,
+                    "token": null
+                  },
+                  "total_detected": 2,
+                  "pools": [
+                    {
+                      "pool_id": "0xfcfae8fa0bd6da961bcf5d990f27690932deac4f093e99bf3e871691c6586593",
+                      "version": "v4",
+                      "pool_type": "concentrated_liquidity",
+                      "chain_id": 4663,
+                      "pool_manager": "0x8366a39cc670b4001a1121b8f6a443a643e40951",
+                      "state_view": "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b",
+                      "token0": {
+                        "symbol": "WETH",
+                        "name": "Wrapped Ether",
+                        "address": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+                        "decimals": 18
+                      },
+                      "token1": {
+                        "symbol": "USDG",
+                        "name": "USDG",
+                        "address": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+                        "decimals": 6
+                      },
+                      "fee_tier_bps": 5,
+                      "tick_spacing": 10,
+                      "liquidity_raw": "11481091544566761",
+                      "liquidity_usd": 425000,
+                      "volume_1h_usd": 28800,
+                      "volume_24h_usd": 392000,
+                      "tx_count_24h": 2310,
+                      "active": true,
+                      "health": "STRONG",
+                      "bot_hint": "DEEPEST_ROUTE"
+                    }
+                  ],
+                  "timestamp": "2026-09-19T18:23:00.000Z"
+                }
+              }
+            }
+          }
         },
         "parameters": [
           {
@@ -183,16 +679,35 @@
             }
           },
           "402": {
-            "description": "Payment Required. x402 or MPP payment is required before accessing the feed.",
+            "description": "Payment Required. A valid x402 payment is required before accessing the feed.",
             "headers": {
-              "X-Payment-Required": {
-                "description": "Payment challenge for simple agents.",
+              "PAYMENT-REQUIRED": {
+                "description": "Base64 encoded x402 v2 payment challenge.",
                 "schema": {
                   "type": "string"
                 }
               },
+              "Payment-Required": {
+                "description": "Base64 encoded x402 v2 payment challenge.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Payment-Required": {
+                "description": "Human-readable payment challenge for simple agents.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-Accepts-Payment": {
+                "description": "Payment protocol accepted by the endpoint.",
+                "schema": {
+                  "type": "string",
+                  "const": "x402"
+                }
+              },
               "WWW-Authenticate": {
-                "description": "MPP-compatible payment challenge.",
+                "description": "x402 authentication challenge.",
                 "schema": {
                   "type": "string"
                 }
@@ -206,7 +721,266 @@
               }
             }
           }
-        }
+        },
+        "extensions": {
+          "bazaar": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "type": "object",
+                  "properties": {
+                    "queryParams": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "limit": {
+                          "type": "integer",
+                          "default": 5,
+                          "minimum": 1,
+                          "maximum": 20,
+                          "description": "Maximum number of pools to return."
+                        },
+                        "min_volume_24h_usd": {
+                          "type": "number",
+                          "default": 0,
+                          "minimum": 0,
+                          "description": "Minimum 24h USD volume filter."
+                        },
+                        "min_liquidity_usd": {
+                          "type": "number",
+                          "default": 0,
+                          "minimum": 0,
+                          "description": "Minimum USD liquidity filter."
+                        },
+                        "token": {
+                          "type": "string",
+                          "description": "Optional token symbol, token name or token address filter."
+                        }
+                      }
+                    }
+                  }
+                },
+                "output": {
+                  "type": "object",
+                  "properties": {
+                    "example": {
+                      "status": "success",
+                      "network": "Robinhood",
+                      "product": "BEST V4 ROBINHOOD",
+                      "feed": "best_v4_pools",
+                      "query_filters": {
+                        "limit": 5,
+                        "minVolume24hUsd": 50000,
+                        "minLiquidityUsd": 0,
+                        "token": null
+                      },
+                      "total_detected": 2,
+                      "pools": [
+                        {
+                          "pool_id": "0xfcfae8fa0bd6da961bcf5d990f27690932deac4f093e99bf3e871691c6586593",
+                          "version": "v4",
+                          "pool_type": "concentrated_liquidity",
+                          "chain_id": 4663,
+                          "pool_manager": "0x8366a39cc670b4001a1121b8f6a443a643e40951",
+                          "state_view": "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b",
+                          "token0": {
+                            "symbol": "WETH",
+                            "name": "Wrapped Ether",
+                            "address": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+                            "decimals": 18
+                          },
+                          "token1": {
+                            "symbol": "USDG",
+                            "name": "USDG",
+                            "address": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+                            "decimals": 6
+                          },
+                          "fee_tier_bps": 5,
+                          "tick_spacing": 10,
+                          "liquidity_raw": "11481091544566761",
+                          "liquidity_usd": 425000,
+                          "volume_1h_usd": 28800,
+                          "volume_24h_usd": 392000,
+                          "tx_count_24h": 2310,
+                          "active": true,
+                          "health": "STRONG",
+                          "bot_hint": "DEEPEST_ROUTE"
+                        }
+                      ],
+                      "timestamp": "2026-09-19T18:23:00.000Z"
+                    }
+                  }
+                }
+              }
+            },
+            "info": {
+              "input": {
+                "queryParams": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "limit": {
+                      "type": "integer",
+                      "default": 5,
+                      "minimum": 1,
+                      "maximum": 20,
+                      "description": "Maximum number of pools to return."
+                    },
+                    "min_volume_24h_usd": {
+                      "type": "number",
+                      "default": 0,
+                      "minimum": 0,
+                      "description": "Minimum 24h USD volume filter."
+                    },
+                    "min_liquidity_usd": {
+                      "type": "number",
+                      "default": 0,
+                      "minimum": 0,
+                      "description": "Minimum USD liquidity filter."
+                    },
+                    "token": {
+                      "type": "string",
+                      "description": "Optional token symbol, token name or token address filter."
+                    }
+                  }
+                }
+              },
+              "output": {
+                "example": {
+                  "status": "success",
+                  "network": "Robinhood",
+                  "product": "BEST V4 ROBINHOOD",
+                  "feed": "best_v4_pools",
+                  "query_filters": {
+                    "limit": 5,
+                    "minVolume24hUsd": 50000,
+                    "minLiquidityUsd": 0,
+                    "token": null
+                  },
+                  "total_detected": 2,
+                  "pools": [
+                    {
+                      "pool_id": "0xfcfae8fa0bd6da961bcf5d990f27690932deac4f093e99bf3e871691c6586593",
+                      "version": "v4",
+                      "pool_type": "concentrated_liquidity",
+                      "chain_id": 4663,
+                      "pool_manager": "0x8366a39cc670b4001a1121b8f6a443a643e40951",
+                      "state_view": "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b",
+                      "token0": {
+                        "symbol": "WETH",
+                        "name": "Wrapped Ether",
+                        "address": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+                        "decimals": 18
+                      },
+                      "token1": {
+                        "symbol": "USDG",
+                        "name": "USDG",
+                        "address": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+                        "decimals": 6
+                      },
+                      "fee_tier_bps": 5,
+                      "tick_spacing": 10,
+                      "liquidity_raw": "11481091544566761",
+                      "liquidity_usd": 425000,
+                      "volume_1h_usd": 28800,
+                      "volume_24h_usd": 392000,
+                      "tx_count_24h": 2310,
+                      "active": true,
+                      "health": "STRONG",
+                      "bot_hint": "DEEPEST_ROUTE"
+                    }
+                  ],
+                  "timestamp": "2026-09-19T18:23:00.000Z"
+                }
+              }
+            },
+            "inputSchema": {
+              "queryParams": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "default": 5,
+                    "minimum": 1,
+                    "maximum": 20,
+                    "description": "Maximum number of pools to return."
+                  },
+                  "min_volume_24h_usd": {
+                    "type": "number",
+                    "default": 0,
+                    "minimum": 0,
+                    "description": "Minimum 24h USD volume filter."
+                  },
+                  "min_liquidity_usd": {
+                    "type": "number",
+                    "default": 0,
+                    "minimum": 0,
+                    "description": "Minimum USD liquidity filter."
+                  },
+                  "token": {
+                    "type": "string",
+                    "description": "Optional token symbol, token name or token address filter."
+                  }
+                }
+              }
+            },
+            "outputSchema": {
+              "example": {
+                "status": "success",
+                "network": "Robinhood",
+                "product": "BEST V4 ROBINHOOD",
+                "feed": "best_v4_pools",
+                "query_filters": {
+                  "limit": 5,
+                  "minVolume24hUsd": 50000,
+                  "minLiquidityUsd": 0,
+                  "token": null
+                },
+                "total_detected": 2,
+                "pools": [
+                  {
+                    "pool_id": "0xfcfae8fa0bd6da961bcf5d990f27690932deac4f093e99bf3e871691c6586593",
+                    "version": "v4",
+                    "pool_type": "concentrated_liquidity",
+                    "chain_id": 4663,
+                    "pool_manager": "0x8366a39cc670b4001a1121b8f6a443a643e40951",
+                    "state_view": "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b",
+                    "token0": {
+                      "symbol": "WETH",
+                      "name": "Wrapped Ether",
+                      "address": "0x0Bd7D308f8E1639FAb988df18A8011f41EAcAD73",
+                      "decimals": 18
+                    },
+                    "token1": {
+                      "symbol": "USDG",
+                      "name": "USDG",
+                      "address": "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+                      "decimals": 6
+                    },
+                    "fee_tier_bps": 5,
+                    "tick_spacing": 10,
+                    "liquidity_raw": "11481091544566761",
+                    "liquidity_usd": 425000,
+                    "volume_1h_usd": 28800,
+                    "volume_24h_usd": 392000,
+                    "tx_count_24h": 2310,
+                    "active": true,
+                    "health": "STRONG",
+                    "bot_hint": "DEEPEST_ROUTE"
+                  }
+                ],
+                "timestamp": "2026-09-19T18:23:00.000Z"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "x402Payment": []
+          }
+        ]
       }
     }
   },
@@ -254,7 +1028,10 @@
                 "type": "number"
               },
               "token": {
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             }
           },
@@ -348,7 +1125,12 @@
           },
           "health": {
             "type": "string",
-            "enum": ["STRONG", "GOOD", "WATCH", "WEAK"]
+            "enum": [
+              "STRONG",
+              "GOOD",
+              "WATCH",
+              "WEAK"
+            ]
           },
           "bot_hint": {
             "type": "string"
@@ -357,7 +1139,12 @@
       },
       "Token": {
         "type": "object",
-        "required": ["symbol", "name", "address", "decimals"],
+        "required": [
+          "symbol",
+          "name",
+          "address",
+          "decimals"
+        ],
         "properties": {
           "symbol": {
             "type": "string"
@@ -375,13 +1162,18 @@
       },
       "PaymentRequiredResponse": {
         "type": "object",
-        "required": ["error", "message", "accepts"],
+        "required": [
+          "x402Version",
+          "error",
+          "accepts",
+          "resource"
+        ],
         "properties": {
-          "error": {
-            "type": "string",
-            "const": "payment_required"
+          "x402Version": {
+            "type": "integer",
+            "const": 2
           },
-          "message": {
+          "error": {
             "type": "string"
           },
           "accepts": {
@@ -389,12 +1181,21 @@
             "items": {
               "type": "object"
             }
+          },
+          "resource": {
+            "type": "object"
+          },
+          "extensions": {
+            "type": "object"
           }
         }
       },
       "ErrorResponse": {
         "type": "object",
-        "required": ["error", "message"],
+        "required": [
+          "error",
+          "message"
+        ],
         "properties": {
           "error": {
             "type": "string"
@@ -403,6 +1204,42 @@
             "type": "string"
           }
         }
+      },
+      "BestV4PoolsQueryInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "default": 5,
+            "minimum": 1,
+            "maximum": 20,
+            "description": "Maximum number of pools to return."
+          },
+          "min_volume_24h_usd": {
+            "type": "number",
+            "default": 0,
+            "minimum": 0,
+            "description": "Minimum 24h USD volume filter."
+          },
+          "min_liquidity_usd": {
+            "type": "number",
+            "default": 0,
+            "minimum": 0,
+            "description": "Minimum USD liquidity filter."
+          },
+          "token": {
+            "type": "string",
+            "description": "Optional token symbol, token name or token address filter."
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "x402Payment": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "PAYMENT-SIGNATURE"
       }
     }
   }
