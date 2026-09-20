@@ -11,7 +11,7 @@ const PRICE = "0.001";
 const PRICE_FIXED = "0.001000";
 const PRICE_USDC_ATOMIC = "1000";
 const CURRENCY = "USDC";
-const NETWORKS = ["base"];
+const PAYMENT_NETWORKS = ["eip155:8453", "eip155:137", "eip155:42161", "eip155:1"];
 const ROBINHOOD_CHAIN_ID = 4663;
 const ROBINHOOD_POOL_MANAGER = "0x8366a39cc670b4001a1121b8f6a443a643e40951";
 const ROBINHOOD_STATE_VIEW = "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b";
@@ -19,6 +19,12 @@ const ARC_USDC_ADDRESS =
   process.env.ARC_USDC_ADDRESS || "0x3600000000000000000000000000000000000000";
 const BASE_USDC_ADDRESS =
   process.env.BASE_USDC_ADDRESS || "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const POLYGON_USDC_ADDRESS =
+  process.env.POLYGON_USDC_ADDRESS || "0x3c499c542cef5e3811e1192ce70d8cc03d5c3359";
+const ARBITRUM_USDC_ADDRESS =
+  process.env.ARBITRUM_USDC_ADDRESS || "0xaf88d065e77c8cC2239327C5EDb3A432268e5831";
+const ETHEREUM_USDC_ADDRESS =
+  process.env.ETHEREUM_USDC_ADDRESS || "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
 const SERVICE_URL = process.env.SERVICE_URL || "https://best-v4-robinhood.zumpay.com.ar";
 
 let gatewayMiddlewarePromise;
@@ -398,6 +404,15 @@ app.get("/openapi.json", (_req, res) => {
   res.status(200).json(openapi);
 });
 
+app.get("/.well-known/x402", (_req, res) => {
+  res.status(200).json({
+    version: 1,
+    resources: [`${SERVICE_URL}/v1/robinhood/v4/best-pools`],
+    instructions:
+      "BEST V4 ROBINHOOD exposes paid Robinhood V4 pool intelligence. Unauthenticated calls return an x402 v2 Payment-Required challenge."
+  });
+});
+
 app.get(bestV4Paths, paymentGate, handleBestV4Pools);
 
 async function handleBestV4Pools(req, res, next) {
@@ -535,7 +550,17 @@ function sendManualPaymentRequired(req, res) {
 }
 
 function buildWwwAuthenticateChallenge(paymentRequired) {
-  const request = Buffer.from(JSON.stringify(paymentRequired)).toString("base64url");
+  const requestObject = {
+    currency: CURRENCY,
+    amount: PRICE,
+    recipient: WALLET_ADDRESS,
+    network: "eip155:8453",
+    asset: BASE_USDC_ADDRESS,
+    resource: paymentRequired.resource.url,
+    x402Version: paymentRequired.x402Version,
+    accepts: paymentRequired.accepts
+  };
+  const request = Buffer.from(JSON.stringify(requestObject)).toString("base64url");
   const id = Buffer.from(paymentRequired.resource.url).toString("base64url").slice(0, 24);
   const expires = new Date(Date.now() + 60_000).toISOString();
 
@@ -562,23 +587,30 @@ function buildPaymentRequired(resourceUrl) {
       tags: ["market-data", "defi", "robinhood", "v4-pools", "trading"],
       iconUrl: `${SERVICE_URL}/favicon.ico`
     },
-    accepts: [
-      {
-        scheme: "exact",
-        network: "eip155:8453",
-        amount: PRICE_USDC_ATOMIC,
-        asset: BASE_USDC_ADDRESS,
-        payTo: WALLET_ADDRESS,
-        maxTimeoutSeconds: 60,
-        extra: {
-          name: CURRENCY,
-          version: "2",
-          resource: resourceUrl
-        }
-      }
-    ],
+    accepts: buildPaymentAccepts(resourceUrl),
     extensions: buildPaymentExtensions()
   };
+}
+
+function buildPaymentAccepts(resourceUrl) {
+  return [
+    { network: "eip155:8453", asset: BASE_USDC_ADDRESS },
+    { network: "eip155:137", asset: POLYGON_USDC_ADDRESS },
+    { network: "eip155:42161", asset: ARBITRUM_USDC_ADDRESS },
+    { network: "eip155:1", asset: ETHEREUM_USDC_ADDRESS }
+  ].map(({ network, asset }) => ({
+    scheme: "exact",
+    network,
+    amount: PRICE_USDC_ATOMIC,
+    asset,
+    payTo: WALLET_ADDRESS,
+    maxTimeoutSeconds: 60,
+    extra: {
+      name: CURRENCY,
+      version: "2",
+      resource: resourceUrl
+    }
+  }));
 }
 
 function buildPaymentExtensions() {
