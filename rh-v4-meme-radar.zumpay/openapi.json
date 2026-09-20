@@ -36,6 +36,11 @@
     "description": "RH V4 Meme Radar docs",
     "url": "https://rh-v4-meme-radar.zumpay.com.ar/docs"
   },
+  "x-discovery": {
+    "ownershipProofs": [
+      "0xF3aAD2304F711ad5f400Ad322442D67DeD3E8A25"
+    ]
+  },
   "servers": [
     {
       "url": "https://rh-v4-meme-radar.zumpay.com.ar"
@@ -489,6 +494,19 @@
             }
           }
         }
+      }
+    },
+    "securitySchemes": {
+      "x402Payment": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "x-payment",
+        "description": "x402 payment payload for paid requests."
+      },
+      "authorization": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Optional authorization-compatible payment proof header."
       }
     }
   }

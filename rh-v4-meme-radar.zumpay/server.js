@@ -259,6 +259,21 @@ app.get("/openapi.json", (_req, res) => {
   res.status(200).json(openapi);
 });
 
+app.get("/.well-known/x402", (_req, res) => {
+  res.status(200).json({
+    version: 1,
+    resources: [
+      `${SERVICE_URL}/v1/robinhood/v4/meme-pools`,
+      `${SERVICE_URL}/v1/robinhood/v4/meme-momentum`,
+      `${SERVICE_URL}/v1/robinhood/v4/new-meme-pools`,
+      `${SERVICE_URL}/v1/robinhood/v4/meme-pool-check`
+    ],
+    ownershipProofs: [WALLET_ADDRESS],
+    instructions:
+      "Paid Robinhood V4 meme-pool intelligence API. Unpaid resource probes return HTTP 402 with x402 accepts metadata."
+  });
+});
+
 app.get(memePoolPaths, paymentGate, handleMemePools);
 app.get(memeMomentumPaths, paymentGate, handleMemeMomentum);
 app.get(newMemePoolPaths, paymentGate, handleNewMemePools);
@@ -714,42 +729,68 @@ async function getGatewayMiddleware() {
 }
 
 function sendManualPaymentRequired(res) {
+  const body = {
+    error: "payment_required",
+    message: "Payment is required to access RH V4 Meme Radar.",
+    accepts: buildPaymentAccepts(`${SERVICE_URL}/v1/robinhood/v4/meme-pools`)
+  };
+
   res.set("X-Payment-Required", `${CURRENCY} amount=${PRICE} address=${WALLET_ADDRESS}`);
+  res.set("Payment-Required", Buffer.from(JSON.stringify(body)).toString("base64"));
   res.set(
     "WWW-Authenticate",
     `Payment realm="RH V4 Meme Radar", currency="${CURRENCY}", amount="${PRICE}"`
   );
 
-  return res.status(402).json({
-    error: "payment_required",
-    message: "Payment is required to access RH V4 Meme Radar.",
-    accepts: [
-      {
-        scheme: "exact",
-        network: "arc",
-        maxAmountRequired: PRICE_USDC_ATOMIC,
-        asset: ARC_USDC_ADDRESS,
-        payTo: WALLET_ADDRESS,
-        resource: `${SERVICE_URL}/v1/robinhood/v4/meme-pools`,
-        description: `RH V4 Meme Radar API call priced at ${PRICE_FIXED} ${CURRENCY}.`,
-        mimeType: "application/json",
-        maxTimeoutSeconds: 60,
-        protocols: ["x402", "mpp"]
-      },
-      {
-        scheme: "exact",
-        network: "base",
-        maxAmountRequired: PRICE_USDC_ATOMIC,
-        asset: BASE_USDC_ADDRESS,
-        payTo: WALLET_ADDRESS,
-        resource: `${SERVICE_URL}/v1/robinhood/v4/meme-pools`,
-        description: `RH V4 Meme Radar API call priced at ${PRICE_FIXED} ${CURRENCY}.`,
-        mimeType: "application/json",
-        maxTimeoutSeconds: 60,
-        protocols: ["x402", "mpp"]
+  return res.status(402).json(body);
+}
+
+function buildPaymentAccepts(resource) {
+  const common = {
+    scheme: "exact",
+    maxAmountRequired: PRICE_USDC_ATOMIC,
+    amount: PRICE_USDC_ATOMIC,
+    payTo: WALLET_ADDRESS,
+    resource,
+    description: `RH V4 Meme Radar API call priced at ${PRICE_FIXED} ${CURRENCY}.`,
+    mimeType: "application/json",
+    maxTimeoutSeconds: 60,
+    protocols: ["x402", "mpp"],
+    extensions: {
+      bazaar: {
+        info: {
+          title: "RH V4 Meme Radar",
+          category: "market-data",
+          input: {
+            type: "object",
+            properties: {
+              limit: { type: "integer", minimum: 1, maximum: 50, default: 10 },
+              min_liquidity_usd: { type: "number", minimum: 0, default: 0 },
+              min_volume_5m_usd: { type: "number", minimum: 0, default: 0 }
+            }
+          }
+        }
       }
-    ]
-  });
+    }
+  };
+
+  return [
+    {
+      ...common,
+      network: "arc",
+      asset: ARC_USDC_ADDRESS
+    },
+    {
+      ...common,
+      network: "base",
+      asset: BASE_USDC_ADDRESS
+    },
+    {
+      ...common,
+      network: "eip155:8453",
+      asset: BASE_USDC_ADDRESS
+    }
+  ];
 }
 
 app.use((req, res) => {
