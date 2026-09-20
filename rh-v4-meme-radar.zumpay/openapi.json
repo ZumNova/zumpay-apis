@@ -11,7 +11,7 @@
       "description": "RH V4 Meme Radar docs",
       "url": "https://rh-v4-meme-radar.zumpay.com.ar/docs"
     },
-    "x-guidance": "Paid high-risk meme-pool feed for bots and AI agents on Robinhood V4. Call /v1/robinhood/v4/meme-pools for curated active meme pools, /v1/robinhood/v4/meme-momentum for short-window movement, /v1/robinhood/v4/new-meme-pools for fresh launches, or /v1/robinhood/v4/meme-pool-check with pool_id to verify a specific pool on-chain. Use only for fast-entry/high-risk strategies.",
+    "x-guidance": "Paid high-risk meme-pool feed for bots and AI agents on Robinhood V4. Call /v1/robinhood/v4/meme-pools for curated active meme pools, /v1/robinhood/v4/meme-momentum for ranked opportunity signals, /v1/robinhood/v4/new-meme-pools for fresh launches, or /v1/robinhood/v4/meme-pool-check with pool_id to verify a specific pool on-chain. Each pool includes risk_score, reward_score, edge_score, bot_decision and reason_codes so agents can decide risk/reward quickly.",
     "x-payment-info": {
       "price": {
         "mode": "fixed",
@@ -46,7 +46,7 @@
       "get": {
         "operationId": "getRobinhoodV4MemePools",
         "summary": "Get active high-risk Robinhood V4 meme pools",
-        "description": "Paid x402 endpoint for fast bots. Returns compact curated meme-pool signals with liquidity, 5m/1h activity and risk flags.",
+        "description": "Paid x402 endpoint for fast bots. Returns compact curated meme-pool signals with live raw liquidity, fee tier, risk/reward scoring and decision hints.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -127,7 +127,7 @@
       "get": {
         "operationId": "getRobinhoodV4MemeMomentum",
         "summary": "Get Robinhood V4 meme-pool momentum",
-        "description": "Paid endpoint returning meme pools ranked by 5-minute volume, transaction count and velocity score.",
+        "description": "Paid endpoint returning meme pools ranked by reward_score using live on-chain state, fee tier, pair type and available activity signals.",
         "x-payment-info": {
           "price": {
             "mode": "fixed",
@@ -311,7 +311,18 @@
       },
       "MemePool": {
         "type": "object",
-        "required": ["symbol", "pool_id", "paired_with", "risk_level", "bot_hint"],
+        "required": [
+          "symbol",
+          "pool_id",
+          "paired_with",
+          "risk_level",
+          "risk_score",
+          "reward_score",
+          "edge_score",
+          "bot_decision",
+          "reason_codes",
+          "bot_hint"
+        ],
         "properties": {
           "symbol": {
             "type": "string"
@@ -361,9 +372,37 @@
           "live_error": {
             "type": ["string", "null"]
           },
+          "risk_score": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "0 is lowest risk, 100 is highest risk. Meme pools usually score high by design."
+          },
+          "reward_score": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "Opportunity score from active state, raw liquidity, pair quality, fee tier and known activity signals."
+          },
+          "edge_score": {
+            "type": "integer",
+            "minimum": -100,
+            "maximum": 100,
+            "description": "reward_score minus risk_score. Positive values are better for fast-entry bots."
+          },
           "risk_level": {
             "type": "string",
-            "enum": ["HIGH", "EXTREME"]
+            "enum": ["LOW", "MEDIUM", "HIGH", "EXTREME"]
+          },
+          "bot_decision": {
+            "type": "string",
+            "enum": ["CONSIDER_FAST_ENTRY", "HIGH_RISK_SCALP_ONLY", "WATCH_ONLY", "AVOID"]
+          },
+          "reason_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "bot_hint": {
             "type": "string"
@@ -399,6 +438,29 @@
           },
           "lp_fee": {
             "type": "integer"
+          },
+          "risk_score": {
+            "type": "integer"
+          },
+          "reward_score": {
+            "type": "integer"
+          },
+          "edge_score": {
+            "type": "integer"
+          },
+          "risk_level": {
+            "type": "string",
+            "enum": ["LOW", "MEDIUM", "HIGH", "EXTREME"]
+          },
+          "bot_decision": {
+            "type": "string",
+            "enum": ["CONSIDER_FAST_ENTRY", "HIGH_RISK_SCALP_ONLY", "WATCH_ONLY", "AVOID"]
+          },
+          "reason_codes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
           "risk_note": {
             "type": "string"

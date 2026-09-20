@@ -271,7 +271,7 @@ async function handleMemePools(req, res, next) {
     const pools = snapshot.pools
       .filter((pool) => pool.liquidity_usd >= filters.minLiquidityUsd)
       .filter((pool) => pool.volume_5m_usd >= filters.minVolume5mUsd)
-      .sort((a, b) => b.velocity_score - a.velocity_score)
+      .sort((a, b) => b.edge_score - a.edge_score)
       .slice(0, filters.limit);
 
     return res.status(200).json(buildMemeResponse("meme_pools", pools, filters, snapshot));
@@ -287,7 +287,7 @@ async function handleMemeMomentum(req, res, next) {
 
     const snapshot = await getLiveMemeSnapshot();
     const pools = snapshot.pools
-      .sort((a, b) => b.volume_5m_usd + b.tx_count_5m * 25 - (a.volume_5m_usd + a.tx_count_5m * 25))
+      .sort((a, b) => b.reward_score - a.reward_score)
       .slice(0, limit);
 
     return res.status(200).json(buildMemeResponse("meme_momentum", pools, { limit }, snapshot));
@@ -342,6 +342,16 @@ async function handleMemePoolCheck(req, res, next) {
       liquidity_raw: liquidity.toString(),
       tick: Number(slot0[1]),
       lp_fee: Number(slot0[3]),
+      ...scorePoolForBots({
+        active: sqrtPriceX96 > BigInt(0) && liquidity > BigInt(0),
+        liquidity_raw: liquidity.toString(),
+        lp_fee: Number(slot0[3]),
+        paired_with: "UNKNOWN",
+        volume_5m_usd: 0,
+        tx_count_5m: 0,
+        age_minutes: null,
+        live_error: null
+      }),
       risk_note: "Meme-pool verification checks on-chain activity/liquidity, not token safety.",
       timestamp: new Date().toISOString()
     });
@@ -365,10 +375,11 @@ async function getLiveMemeSnapshot() {
   const provider = getProvider();
   const stateView = new ethers.Contract(ROBINHOOD_STATE_VIEW, STATE_VIEW_ABI, provider);
   const basePools = getCuratedMemePools();
-  const [blockNumber, pools] = await Promise.all([
+  const [blockNumber, enrichedPools] = await Promise.all([
     provider.getBlockNumber(),
     Promise.all(basePools.map((pool) => enrichPoolWithLiveState(pool, stateView)))
   ]);
+  const pools = enrichedPools.map(scorePoolForBots);
 
   livePoolCache = {
     pools,
@@ -445,7 +456,6 @@ function getCuratedMemePools() {
       lp_fee: pool.lp_fee ?? null,
       tick: pool.tick ?? null,
       liquidity_raw: pool.liquidity_raw || null,
-      risk_level: liquidityUsd < 5000 || (ageMinutes != null && ageMinutes < 30) ? "EXTREME" : "HIGH",
       velocity_score: velocityScore,
       bot_hint: pool.bot_hint || getBotHint(liquidityUsd, volume5mUsd, ageMinutes)
     };
@@ -487,10 +497,146 @@ function buildMemeResponse(feed, pools, filters, snapshot) {
       live_cache_ttl_ms: LIVE_CACHE_TTL_MS,
       live_refreshed_at: snapshot.refreshedAt,
       live_block_number: snapshot.blockNumber,
+      scoring_model: "risk_reward_v1",
+      scoring_note:
+        "Scores use on-chain active state, raw liquidity, pair type, fee tier and known data gaps. Volume fields stay zero until an indexer is connected.",
       risk_notice: "High-risk meme-pool feed. Activity does not imply safety."
     },
     timestamp: new Date().toISOString()
   };
+}
+
+function scorePoolForBots(pool) {
+  const reasonCodes = [];
+  const active = Boolean(pool.active) && !pool.live_error;
+  const lpFee = Number(pool.lp_fee || 0);
+  const pairedWith = String(pool.paired_with || "UNKNOWN").toUpperCase();
+  const liquidityDigits = countDecimalDigits(pool.liquidity_raw);
+  const hasVolumeSignal = Number(pool.volume_5m_usd || 0) > 0 || Number(pool.tx_count_5m || 0) > 0;
+
+  let riskScore = 35;
+  let rewardScore = 0;
+
+  if (active) {
+    rewardScore += 30;
+    reasonCodes.push("ACTIVE_ONCHAIN");
+  } else {
+    riskScore += 45;
+    reasonCodes.push(pool.live_error ? "LIVE_READ_ERROR" : "INACTIVE_ONCHAIN");
+  }
+
+  if (liquidityDigits >= 25) {
+    rewardScore += 35;
+    reasonCodes.push("VERY_HIGH_RAW_LIQUIDITY");
+  } else if (liquidityDigits >= 22) {
+    rewardScore += 28;
+    reasonCodes.push("HIGH_RAW_LIQUIDITY");
+  } else if (liquidityDigits >= 19) {
+    rewardScore += 20;
+    reasonCodes.push("MEDIUM_RAW_LIQUIDITY");
+  } else if (liquidityDigits > 0) {
+    rewardScore += 10;
+    riskScore += 10;
+    reasonCodes.push("LOW_RAW_LIQUIDITY");
+  } else {
+    riskScore += 20;
+    reasonCodes.push("UNKNOWN_RAW_LIQUIDITY");
+  }
+
+  if (lpFee >= 30000) {
+    riskScore += 30;
+    rewardScore -= 10;
+    reasonCodes.push("VERY_HIGH_FEE");
+  } else if (lpFee >= 10000) {
+    riskScore += 20;
+    reasonCodes.push("HIGH_FEE");
+  } else if (lpFee >= 5000) {
+    riskScore += 12;
+    rewardScore += 3;
+    reasonCodes.push("MID_HIGH_FEE");
+  } else if (lpFee > 0) {
+    riskScore += 6;
+    rewardScore += 10;
+    reasonCodes.push("BOT_FRIENDLY_FEE");
+  } else {
+    riskScore += 10;
+    reasonCodes.push("UNKNOWN_FEE");
+  }
+
+  if (pairedWith === "USDG") {
+    rewardScore += 12;
+    reasonCodes.push("STABLE_PAIR");
+  } else if (pairedWith === "ETH" || pairedWith === "WETH") {
+    rewardScore += 8;
+    riskScore += 5;
+    reasonCodes.push("ETH_PAIR");
+  } else if (pairedWith === "UNKNOWN") {
+    riskScore += 12;
+    reasonCodes.push("UNKNOWN_PAIR");
+  } else {
+    rewardScore += 4;
+    riskScore += 12;
+    reasonCodes.push("MEME_CROSS_PAIR");
+  }
+
+  if (Number(pool.liquidity_usd || 0) === 0) {
+    riskScore += 10;
+    reasonCodes.push("UNKNOWN_USD_LIQUIDITY");
+  }
+
+  if (!hasVolumeSignal) {
+    riskScore += 10;
+    reasonCodes.push("MISSING_VOLUME_INDEX");
+  } else {
+    rewardScore += Math.min(15, Number(pool.volume_5m_usd || 0) / 250 + Number(pool.tx_count_5m || 0));
+    reasonCodes.push("HAS_SHORT_WINDOW_ACTIVITY");
+  }
+
+  if (pool.age_minutes == null) {
+    riskScore += 5;
+    reasonCodes.push("AGE_UNKNOWN");
+  } else if (pool.age_minutes <= 30) {
+    riskScore += 15;
+    rewardScore += 12;
+    reasonCodes.push("FRESH_POOL");
+  }
+
+  const normalizedRisk = clamp(Math.round(riskScore), 0, 100);
+  const normalizedReward = clamp(Math.round(rewardScore), 0, 100);
+  const edgeScore = normalizedReward - normalizedRisk;
+
+  return {
+    ...pool,
+    risk_score: normalizedRisk,
+    reward_score: normalizedReward,
+    edge_score: edgeScore,
+    risk_level: getRiskLevel(normalizedRisk),
+    bot_decision: getBotDecision(active, normalizedRisk, edgeScore),
+    reason_codes: reasonCodes
+  };
+}
+
+function countDecimalDigits(value) {
+  const digits = String(value || "").replace(/^0+/, "");
+  return /^\d+$/.test(digits) ? digits.length : 0;
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function getRiskLevel(riskScore) {
+  if (riskScore >= 85) return "EXTREME";
+  if (riskScore >= 65) return "HIGH";
+  if (riskScore >= 40) return "MEDIUM";
+  return "LOW";
+}
+
+function getBotDecision(active, riskScore, edgeScore) {
+  if (!active || riskScore >= 90) return "AVOID";
+  if (edgeScore >= 20 && riskScore < 70) return "CONSIDER_FAST_ENTRY";
+  if (edgeScore >= 0) return "HIGH_RISK_SCALP_ONLY";
+  return "WATCH_ONLY";
 }
 
 function parseMemeQuery(query) {
