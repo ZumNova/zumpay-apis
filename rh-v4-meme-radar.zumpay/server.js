@@ -11,14 +11,12 @@ const PRICE = "0.002";
 const PRICE_FIXED = "0.002000";
 const PRICE_USDC_ATOMIC = "2000";
 const CURRENCY = "USDC";
-const NETWORKS = ["arc", "base"];
+const NETWORKS = ["base"];
 const SERVICE_URL = process.env.SERVICE_URL || "https://rh-v4-meme-radar.zumpay.com.ar";
 const RH_RPC_URL = process.env.RH_RPC_URL || "https://rpc.mainnet.chain.robinhood.com";
 const ROBINHOOD_CHAIN_ID = 4663;
 const ROBINHOOD_POOL_MANAGER = "0x8366a39cc670b4001a1121b8f6a443a643e40951";
 const ROBINHOOD_STATE_VIEW = "0xf3334192d15450cdd385c8b70e03f9a6bd9e673b";
-const ARC_USDC_ADDRESS =
-  process.env.ARC_USDC_ADDRESS || "0x3600000000000000000000000000000000000000";
 const BASE_USDC_ADDRESS =
   process.env.BASE_USDC_ADDRESS || "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const LIVE_CACHE_TTL_MS = Number(process.env.LIVE_CACHE_TTL_MS || 20000);
@@ -230,6 +228,15 @@ app.get("/", (_req, res) => {
       "/v1/robinhood/v4/meme-pool-check"
     ]
   });
+});
+
+app.get("/favicon.ico", (_req, res) => {
+  res
+    .status(200)
+    .type("image/svg+xml")
+    .send(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#071d49"/><path fill="#46d39a" d="M17 38c7-18 22-24 33-17-13-1-22 7-27 23z"/><path fill="#fff" d="M27 43c6-15 17-18 24-12-9 0-15 5-19 16z"/></svg>'
+    );
 });
 
 app.get("/docs", (_req, res) => {
@@ -694,11 +701,13 @@ function badRequest(message) {
 }
 
 async function paymentGate(req, res, next) {
-  if (!req.headers["x-payment"] && !req.headers.authorization) {
+  if (!req.headers["x-payment"] && !req.headers["payment-signature"] && !req.headers.authorization) {
     return sendManualPaymentRequired(req, res);
   }
 
-  if (req.headers.authorization && !req.headers["x-payment"]) return next();
+  if ((req.headers.authorization || req.headers["payment-signature"]) && !req.headers["x-payment"]) {
+    return next();
+  }
 
   try {
     const middleware = await getGatewayMiddleware();
@@ -730,95 +739,117 @@ async function getGatewayMiddleware() {
 
 function sendManualPaymentRequired(req, res) {
   const resource = `${SERVICE_URL}${req.originalUrl}`;
-  const body = {
-    x402Version: 1,
-    error: "payment_required",
-    message: "Payment is required to access RH V4 Meme Radar.",
-    accepts: buildPaymentAccepts(resource)
-  };
+  const paymentRequired = buildPaymentRequired(resource);
 
+  res.set("PAYMENT-REQUIRED", Buffer.from(JSON.stringify(paymentRequired)).toString("base64"));
+  res.set("Payment-Required", Buffer.from(JSON.stringify(paymentRequired)).toString("base64"));
   res.set("X-Payment-Required", `${CURRENCY} amount=${PRICE} address=${WALLET_ADDRESS}`);
   res.set("X-Accepts-Payment", "x402");
-  res.set("Payment-Required", Buffer.from(JSON.stringify(body)).toString("base64"));
   res.set("WWW-Authenticate", `x402 realm="RH V4 Meme Radar"`);
 
-  return res.status(402).json(body);
+  return res.status(402).json(paymentRequired);
 }
 
-function buildPaymentAccepts(resource) {
-  const common = {
-    scheme: "exact",
-    maxAmountRequired: PRICE_USDC_ATOMIC,
-    amount: PRICE_USDC_ATOMIC,
-    payTo: WALLET_ADDRESS,
-    resource,
-    description: `RH V4 Meme Radar API call priced at ${PRICE_FIXED} ${CURRENCY}.`,
-    mimeType: "application/json",
-    maxTimeoutSeconds: 60,
-    protocols: ["x402", "mpp"],
-    extra: {
-      name: "RH V4 Meme Radar",
+function buildPaymentRequired(resourceUrl) {
+  const body = {
+    x402Version: 2,
+    error: "PAYMENT-SIGNATURE header is required",
+    resource: {
+      url: resourceUrl,
       description:
         "High-risk Robinhood V4 meme-pool radar with live on-chain state and risk/reward scoring.",
       mimeType: "application/json",
-      inputSchema: {
-        type: "object",
-        properties: {
-          limit: { type: "integer", minimum: 1, maximum: 50, default: 10 },
-          min_liquidity_usd: { type: "number", minimum: 0, default: 0 },
-          min_volume_5m_usd: { type: "number", minimum: 0, default: 0 },
-          max_age_minutes: { type: "integer", minimum: 1, maximum: 1440, default: 60 },
-          pool_id: { type: "string", pattern: "^0x[a-fA-F0-9]{64}$" }
-        }
-      },
-      outputSchema: {
-        type: "object",
-        properties: {
-          status: { type: "string" },
-          network: { type: "string" },
-          pools: { type: "array" },
-          risk_score: { type: "integer" },
-          reward_score: { type: "integer" },
-          edge_score: { type: "integer" },
-          bot_decision: { type: "string" }
-        }
-      }
+      serviceName: "RH V4 Meme Radar",
+      tags: ["market-data", "defi", "robinhood", "meme-pools", "trading"],
+      iconUrl: `${SERVICE_URL}/favicon.ico`
     },
-    extensions: {
-      bazaar: {
-        info: {
-          title: "RH V4 Meme Radar",
-          category: "market-data",
-          inputSchema: {
-            type: "object",
-            properties: {
-              limit: { type: "integer", minimum: 1, maximum: 50, default: 10 },
-              min_liquidity_usd: { type: "number", minimum: 0, default: 0 },
-              min_volume_5m_usd: { type: "number", minimum: 0, default: 0 }
-            }
-          }
-        }
+    accepts: buildPaymentAccepts(resourceUrl),
+    extensions: buildPaymentExtensions()
+  };
+
+  return body;
+}
+
+function buildPaymentAccepts(resource) {
+  return [
+    {
+      scheme: "exact",
+      network: "eip155:8453",
+      amount: PRICE_USDC_ATOMIC,
+      asset: BASE_USDC_ADDRESS,
+      payTo: WALLET_ADDRESS,
+      maxTimeoutSeconds: 60,
+      extra: {
+        name: CURRENCY,
+        version: "2",
+        resource
       }
+    }
+  ];
+}
+
+function buildPaymentExtensions() {
+  const input = {
+    type: "object",
+    properties: {
+      limit: { type: "integer", minimum: 1, maximum: 50, default: 10 },
+      min_liquidity_usd: { type: "number", minimum: 0, default: 0 },
+      min_volume_5m_usd: { type: "number", minimum: 0, default: 0 },
+      max_age_minutes: { type: "integer", minimum: 1, maximum: 1440, default: 60 },
+      pool_id: { type: "string", pattern: "^0x[a-fA-F0-9]{64}$" }
+    }
+  };
+  const output = {
+    type: "object",
+    properties: {
+      status: { type: "string" },
+      network: { type: "string" },
+      pools: { type: "array" },
+      risk_score: { type: "integer" },
+      reward_score: { type: "integer" },
+      edge_score: { type: "integer" },
+      bot_decision: { type: "string" }
     }
   };
 
-  return [
-    {
-      ...common,
-      network: "arc",
-      asset: ARC_USDC_ADDRESS
-    },
-    {
-      ...common,
-      network: "base",
-      asset: BASE_USDC_ADDRESS
-    },
-    {
-      ...common,
-      network: "eip155:8453",
-      asset: BASE_USDC_ADDRESS
+  return {
+    bazaar: {
+      schema: {
+        type: "object",
+        required: ["title", "category", "input", "output"],
+        properties: {
+          title: { type: "string" },
+          category: { type: "string" },
+          input: {
+            type: "object",
+            properties: {
+              queryParams: input
+            }
+          },
+          output: {
+            type: "object",
+            properties: {
+              example: output
+            }
+          },
+          inputSchema: { type: "object" },
+          outputSchema: { type: "object" }
+        }
+      },
+      info: {
+        title: "RH V4 Meme Radar",
+        category: "market-data",
+        input: {
+          queryParams: input
+        },
+        output: {
+          example: output
+        },
+        inputSchema: input,
+        outputSchema: output
+      }
     }
-  ];
+  };
 }
 
 app.use((req, res) => {

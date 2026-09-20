@@ -15,21 +15,152 @@
     "x-payment-info": {
       "price": {
         "mode": "fixed",
-        "currency": "USDC",
-        "amount": "0.002000"
+        "currency": "USD",
+        "amount": "0.002"
       },
       "protocols": [
-        {
-          "x402": {}
-        },
-        {
-          "mpp": {}
-        }
+        "x402"
       ],
       "networks": [
-        "arc",
-        "base"
-      ]
+        "eip155:8453"
+      ],
+      "extensions": {
+        "bazaar": {
+          "schema": {
+            "type": "object",
+            "properties": {
+              "input": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "default": 10,
+                    "minimum": 1,
+                    "maximum": 50
+                  },
+                  "min_liquidity_usd": {
+                    "type": "number",
+                    "default": 0,
+                    "minimum": 0
+                  },
+                  "min_volume_5m_usd": {
+                    "type": "number",
+                    "default": 0,
+                    "minimum": 0
+                  }
+                }
+              },
+              "output": {
+                "type": "object",
+                "required": [
+                  "status",
+                  "network",
+                  "product",
+                  "feed",
+                  "total_detected",
+                  "pools",
+                  "timestamp"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "const": "success"
+                  },
+                  "network": {
+                    "type": "string",
+                    "const": "Robinhood"
+                  },
+                  "product": {
+                    "type": "string",
+                    "const": "RH V4 Meme Radar"
+                  },
+                  "feed": {
+                    "type": "string"
+                  },
+                  "total_detected": {
+                    "type": "integer"
+                  },
+                  "pools": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/MemePool"
+                    }
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          },
+          "info": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "limit": {
+                  "type": "integer",
+                  "default": 10,
+                  "minimum": 1,
+                  "maximum": 50
+                },
+                "min_liquidity_usd": {
+                  "type": "number",
+                  "default": 0,
+                  "minimum": 0
+                },
+                "min_volume_5m_usd": {
+                  "type": "number",
+                  "default": 0,
+                  "minimum": 0
+                }
+              }
+            },
+            "output": {
+              "type": "object",
+              "required": [
+                "status",
+                "network",
+                "product",
+                "feed",
+                "total_detected",
+                "pools",
+                "timestamp"
+              ],
+              "properties": {
+                "status": {
+                  "type": "string",
+                  "const": "success"
+                },
+                "network": {
+                  "type": "string",
+                  "const": "Robinhood"
+                },
+                "product": {
+                  "type": "string",
+                  "const": "RH V4 Meme Radar"
+                },
+                "feed": {
+                  "type": "string"
+                },
+                "total_detected": {
+                  "type": "integer"
+                },
+                "pools": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MemePool"
+                  }
+                },
+                "timestamp": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "externalDocs": {
@@ -60,21 +191,152 @@
         "x-payment-info": {
           "price": {
             "mode": "fixed",
-            "currency": "USDC",
-            "amount": "0.002000"
+            "currency": "USD",
+            "amount": "0.002"
           },
           "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {}
-            }
+            "x402"
           ],
           "networks": [
-            "arc",
-            "base"
-          ]
+            "eip155:8453"
+          ],
+          "extensions": {
+            "bazaar": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "limit": {
+                        "type": "integer",
+                        "default": 10,
+                        "minimum": 1,
+                        "maximum": 50
+                      },
+                      "min_liquidity_usd": {
+                        "type": "number",
+                        "default": 0,
+                        "minimum": 0
+                      },
+                      "min_volume_5m_usd": {
+                        "type": "number",
+                        "default": 0,
+                        "minimum": 0
+                      }
+                    }
+                  },
+                  "output": {
+                    "type": "object",
+                    "required": [
+                      "status",
+                      "network",
+                      "product",
+                      "feed",
+                      "total_detected",
+                      "pools",
+                      "timestamp"
+                    ],
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "const": "success"
+                      },
+                      "network": {
+                        "type": "string",
+                        "const": "Robinhood"
+                      },
+                      "product": {
+                        "type": "string",
+                        "const": "RH V4 Meme Radar"
+                      },
+                      "feed": {
+                        "type": "string"
+                      },
+                      "total_detected": {
+                        "type": "integer"
+                      },
+                      "pools": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/MemePool"
+                        }
+                      },
+                      "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    }
+                  }
+                }
+              },
+              "info": {
+                "input": {
+                  "type": "object",
+                  "properties": {
+                    "limit": {
+                      "type": "integer",
+                      "default": 10,
+                      "minimum": 1,
+                      "maximum": 50
+                    },
+                    "min_liquidity_usd": {
+                      "type": "number",
+                      "default": 0,
+                      "minimum": 0
+                    },
+                    "min_volume_5m_usd": {
+                      "type": "number",
+                      "default": 0,
+                      "minimum": 0
+                    }
+                  }
+                },
+                "output": {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "network",
+                    "product",
+                    "feed",
+                    "total_detected",
+                    "pools",
+                    "timestamp"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "const": "success"
+                    },
+                    "network": {
+                      "type": "string",
+                      "const": "Robinhood"
+                    },
+                    "product": {
+                      "type": "string",
+                      "const": "RH V4 Meme Radar"
+                    },
+                    "feed": {
+                      "type": "string"
+                    },
+                    "total_detected": {
+                      "type": "integer"
+                    },
+                    "pools": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MemePool"
+                      }
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
         "parameters": [
           {
@@ -130,6 +392,143 @@
               }
             }
           }
+        },
+        "extensions": {
+          "bazaar": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "type": "object",
+                  "properties": {
+                    "limit": {
+                      "type": "integer",
+                      "default": 10,
+                      "minimum": 1,
+                      "maximum": 50
+                    },
+                    "min_liquidity_usd": {
+                      "type": "number",
+                      "default": 0,
+                      "minimum": 0
+                    },
+                    "min_volume_5m_usd": {
+                      "type": "number",
+                      "default": 0,
+                      "minimum": 0
+                    }
+                  }
+                },
+                "output": {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "network",
+                    "product",
+                    "feed",
+                    "total_detected",
+                    "pools",
+                    "timestamp"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "const": "success"
+                    },
+                    "network": {
+                      "type": "string",
+                      "const": "Robinhood"
+                    },
+                    "product": {
+                      "type": "string",
+                      "const": "RH V4 Meme Radar"
+                    },
+                    "feed": {
+                      "type": "string"
+                    },
+                    "total_detected": {
+                      "type": "integer"
+                    },
+                    "pools": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MemePool"
+                      }
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            },
+            "info": {
+              "input": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "default": 10,
+                    "minimum": 1,
+                    "maximum": 50
+                  },
+                  "min_liquidity_usd": {
+                    "type": "number",
+                    "default": 0,
+                    "minimum": 0
+                  },
+                  "min_volume_5m_usd": {
+                    "type": "number",
+                    "default": 0,
+                    "minimum": 0
+                  }
+                }
+              },
+              "output": {
+                "type": "object",
+                "required": [
+                  "status",
+                  "network",
+                  "product",
+                  "feed",
+                  "total_detected",
+                  "pools",
+                  "timestamp"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "const": "success"
+                  },
+                  "network": {
+                    "type": "string",
+                    "const": "Robinhood"
+                  },
+                  "product": {
+                    "type": "string",
+                    "const": "RH V4 Meme Radar"
+                  },
+                  "feed": {
+                    "type": "string"
+                  },
+                  "total_detected": {
+                    "type": "integer"
+                  },
+                  "pools": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/MemePool"
+                    }
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
         }
       }
     },
@@ -146,21 +545,132 @@
         "x-payment-info": {
           "price": {
             "mode": "fixed",
-            "currency": "USDC",
-            "amount": "0.002000"
+            "currency": "USD",
+            "amount": "0.002"
           },
           "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {}
-            }
+            "x402"
           ],
           "networks": [
-            "arc",
-            "base"
-          ]
+            "eip155:8453"
+          ],
+          "extensions": {
+            "bazaar": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "limit": {
+                        "type": "integer",
+                        "default": 10,
+                        "minimum": 1,
+                        "maximum": 50
+                      }
+                    }
+                  },
+                  "output": {
+                    "type": "object",
+                    "required": [
+                      "status",
+                      "network",
+                      "product",
+                      "feed",
+                      "total_detected",
+                      "pools",
+                      "timestamp"
+                    ],
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "const": "success"
+                      },
+                      "network": {
+                        "type": "string",
+                        "const": "Robinhood"
+                      },
+                      "product": {
+                        "type": "string",
+                        "const": "RH V4 Meme Radar"
+                      },
+                      "feed": {
+                        "type": "string"
+                      },
+                      "total_detected": {
+                        "type": "integer"
+                      },
+                      "pools": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/MemePool"
+                        }
+                      },
+                      "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    }
+                  }
+                }
+              },
+              "info": {
+                "input": {
+                  "type": "object",
+                  "properties": {
+                    "limit": {
+                      "type": "integer",
+                      "default": 10,
+                      "minimum": 1,
+                      "maximum": 50
+                    }
+                  }
+                },
+                "output": {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "network",
+                    "product",
+                    "feed",
+                    "total_detected",
+                    "pools",
+                    "timestamp"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "const": "success"
+                    },
+                    "network": {
+                      "type": "string",
+                      "const": "Robinhood"
+                    },
+                    "product": {
+                      "type": "string",
+                      "const": "RH V4 Meme Radar"
+                    },
+                    "feed": {
+                      "type": "string"
+                    },
+                    "total_detected": {
+                      "type": "integer"
+                    },
+                    "pools": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MemePool"
+                      }
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
         "responses": {
           "200": {
@@ -174,7 +684,131 @@
             }
           },
           "402": {
-            "description": "Payment Required."
+            "description": "Payment Required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentRequiredResponse"
+                }
+              }
+            }
+          }
+        },
+        "extensions": {
+          "bazaar": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "type": "object",
+                  "properties": {
+                    "limit": {
+                      "type": "integer",
+                      "default": 10,
+                      "minimum": 1,
+                      "maximum": 50
+                    }
+                  }
+                },
+                "output": {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "network",
+                    "product",
+                    "feed",
+                    "total_detected",
+                    "pools",
+                    "timestamp"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "const": "success"
+                    },
+                    "network": {
+                      "type": "string",
+                      "const": "Robinhood"
+                    },
+                    "product": {
+                      "type": "string",
+                      "const": "RH V4 Meme Radar"
+                    },
+                    "feed": {
+                      "type": "string"
+                    },
+                    "total_detected": {
+                      "type": "integer"
+                    },
+                    "pools": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MemePool"
+                      }
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            },
+            "info": {
+              "input": {
+                "type": "object",
+                "properties": {
+                  "limit": {
+                    "type": "integer",
+                    "default": 10,
+                    "minimum": 1,
+                    "maximum": 50
+                  }
+                }
+              },
+              "output": {
+                "type": "object",
+                "required": [
+                  "status",
+                  "network",
+                  "product",
+                  "feed",
+                  "total_detected",
+                  "pools",
+                  "timestamp"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "const": "success"
+                  },
+                  "network": {
+                    "type": "string",
+                    "const": "Robinhood"
+                  },
+                  "product": {
+                    "type": "string",
+                    "const": "RH V4 Meme Radar"
+                  },
+                  "feed": {
+                    "type": "string"
+                  },
+                  "total_detected": {
+                    "type": "integer"
+                  },
+                  "pools": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/MemePool"
+                    }
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -192,21 +826,132 @@
         "x-payment-info": {
           "price": {
             "mode": "fixed",
-            "currency": "USDC",
-            "amount": "0.002000"
+            "currency": "USD",
+            "amount": "0.002"
           },
           "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {}
-            }
+            "x402"
           ],
           "networks": [
-            "arc",
-            "base"
-          ]
+            "eip155:8453"
+          ],
+          "extensions": {
+            "bazaar": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "properties": {
+                      "max_age_minutes": {
+                        "type": "integer",
+                        "default": 60,
+                        "minimum": 1,
+                        "maximum": 1440
+                      }
+                    }
+                  },
+                  "output": {
+                    "type": "object",
+                    "required": [
+                      "status",
+                      "network",
+                      "product",
+                      "feed",
+                      "total_detected",
+                      "pools",
+                      "timestamp"
+                    ],
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "const": "success"
+                      },
+                      "network": {
+                        "type": "string",
+                        "const": "Robinhood"
+                      },
+                      "product": {
+                        "type": "string",
+                        "const": "RH V4 Meme Radar"
+                      },
+                      "feed": {
+                        "type": "string"
+                      },
+                      "total_detected": {
+                        "type": "integer"
+                      },
+                      "pools": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/MemePool"
+                        }
+                      },
+                      "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    }
+                  }
+                }
+              },
+              "info": {
+                "input": {
+                  "type": "object",
+                  "properties": {
+                    "max_age_minutes": {
+                      "type": "integer",
+                      "default": 60,
+                      "minimum": 1,
+                      "maximum": 1440
+                    }
+                  }
+                },
+                "output": {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "network",
+                    "product",
+                    "feed",
+                    "total_detected",
+                    "pools",
+                    "timestamp"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "const": "success"
+                    },
+                    "network": {
+                      "type": "string",
+                      "const": "Robinhood"
+                    },
+                    "product": {
+                      "type": "string",
+                      "const": "RH V4 Meme Radar"
+                    },
+                    "feed": {
+                      "type": "string"
+                    },
+                    "total_detected": {
+                      "type": "integer"
+                    },
+                    "pools": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MemePool"
+                      }
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
         "parameters": [
           {
@@ -232,7 +977,131 @@
             }
           },
           "402": {
-            "description": "Payment Required."
+            "description": "Payment Required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentRequiredResponse"
+                }
+              }
+            }
+          }
+        },
+        "extensions": {
+          "bazaar": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "type": "object",
+                  "properties": {
+                    "max_age_minutes": {
+                      "type": "integer",
+                      "default": 60,
+                      "minimum": 1,
+                      "maximum": 1440
+                    }
+                  }
+                },
+                "output": {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "network",
+                    "product",
+                    "feed",
+                    "total_detected",
+                    "pools",
+                    "timestamp"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "const": "success"
+                    },
+                    "network": {
+                      "type": "string",
+                      "const": "Robinhood"
+                    },
+                    "product": {
+                      "type": "string",
+                      "const": "RH V4 Meme Radar"
+                    },
+                    "feed": {
+                      "type": "string"
+                    },
+                    "total_detected": {
+                      "type": "integer"
+                    },
+                    "pools": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MemePool"
+                      }
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            },
+            "info": {
+              "input": {
+                "type": "object",
+                "properties": {
+                  "max_age_minutes": {
+                    "type": "integer",
+                    "default": 60,
+                    "minimum": 1,
+                    "maximum": 1440
+                  }
+                }
+              },
+              "output": {
+                "type": "object",
+                "required": [
+                  "status",
+                  "network",
+                  "product",
+                  "feed",
+                  "total_detected",
+                  "pools",
+                  "timestamp"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "const": "success"
+                  },
+                  "network": {
+                    "type": "string",
+                    "const": "Robinhood"
+                  },
+                  "product": {
+                    "type": "string",
+                    "const": "RH V4 Meme Radar"
+                  },
+                  "feed": {
+                    "type": "string"
+                  },
+                  "total_detected": {
+                    "type": "integer"
+                  },
+                  "pools": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/MemePool"
+                    }
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -250,21 +1119,206 @@
         "x-payment-info": {
           "price": {
             "mode": "fixed",
-            "currency": "USDC",
-            "amount": "0.002000"
+            "currency": "USD",
+            "amount": "0.002"
           },
           "protocols": [
-            {
-              "x402": {}
-            },
-            {
-              "mpp": {}
-            }
+            "x402"
           ],
           "networks": [
-            "arc",
-            "base"
-          ]
+            "eip155:8453"
+          ],
+          "extensions": {
+            "bazaar": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "input": {
+                    "type": "object",
+                    "required": [
+                      "pool_id"
+                    ],
+                    "properties": {
+                      "pool_id": {
+                        "type": "string",
+                        "pattern": "^0x[a-fA-F0-9]{64}$"
+                      }
+                    }
+                  },
+                  "output": {
+                    "type": "object",
+                    "required": [
+                      "status",
+                      "network",
+                      "pool_id",
+                      "active",
+                      "timestamp"
+                    ],
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "const": "success"
+                      },
+                      "network": {
+                        "type": "string",
+                        "const": "Robinhood"
+                      },
+                      "pool_id": {
+                        "type": "string"
+                      },
+                      "active": {
+                        "type": "boolean"
+                      },
+                      "sqrtPriceX96": {
+                        "type": "string"
+                      },
+                      "liquidity_raw": {
+                        "type": "string"
+                      },
+                      "tick": {
+                        "type": "integer"
+                      },
+                      "lp_fee": {
+                        "type": "integer"
+                      },
+                      "risk_score": {
+                        "type": "integer"
+                      },
+                      "reward_score": {
+                        "type": "integer"
+                      },
+                      "edge_score": {
+                        "type": "integer"
+                      },
+                      "risk_level": {
+                        "type": "string",
+                        "enum": [
+                          "LOW",
+                          "MEDIUM",
+                          "HIGH",
+                          "EXTREME"
+                        ]
+                      },
+                      "bot_decision": {
+                        "type": "string",
+                        "enum": [
+                          "CONSIDER_FAST_ENTRY",
+                          "HIGH_RISK_SCALP_ONLY",
+                          "WATCH_ONLY",
+                          "AVOID"
+                        ]
+                      },
+                      "reason_codes": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "risk_note": {
+                        "type": "string"
+                      },
+                      "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    }
+                  }
+                }
+              },
+              "info": {
+                "input": {
+                  "type": "object",
+                  "required": [
+                    "pool_id"
+                  ],
+                  "properties": {
+                    "pool_id": {
+                      "type": "string",
+                      "pattern": "^0x[a-fA-F0-9]{64}$"
+                    }
+                  }
+                },
+                "output": {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "network",
+                    "pool_id",
+                    "active",
+                    "timestamp"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "const": "success"
+                    },
+                    "network": {
+                      "type": "string",
+                      "const": "Robinhood"
+                    },
+                    "pool_id": {
+                      "type": "string"
+                    },
+                    "active": {
+                      "type": "boolean"
+                    },
+                    "sqrtPriceX96": {
+                      "type": "string"
+                    },
+                    "liquidity_raw": {
+                      "type": "string"
+                    },
+                    "tick": {
+                      "type": "integer"
+                    },
+                    "lp_fee": {
+                      "type": "integer"
+                    },
+                    "risk_score": {
+                      "type": "integer"
+                    },
+                    "reward_score": {
+                      "type": "integer"
+                    },
+                    "edge_score": {
+                      "type": "integer"
+                    },
+                    "risk_level": {
+                      "type": "string",
+                      "enum": [
+                        "LOW",
+                        "MEDIUM",
+                        "HIGH",
+                        "EXTREME"
+                      ]
+                    },
+                    "bot_decision": {
+                      "type": "string",
+                      "enum": [
+                        "CONSIDER_FAST_ENTRY",
+                        "HIGH_RISK_SCALP_ONLY",
+                        "WATCH_ONLY",
+                        "AVOID"
+                      ]
+                    },
+                    "reason_codes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "risk_note": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          }
         },
         "parameters": [
           {
@@ -292,7 +1346,205 @@
             "description": "Invalid pool_id."
           },
           "402": {
-            "description": "Payment Required."
+            "description": "Payment Required.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentRequiredResponse"
+                }
+              }
+            }
+          }
+        },
+        "extensions": {
+          "bazaar": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "input": {
+                  "type": "object",
+                  "required": [
+                    "pool_id"
+                  ],
+                  "properties": {
+                    "pool_id": {
+                      "type": "string",
+                      "pattern": "^0x[a-fA-F0-9]{64}$"
+                    }
+                  }
+                },
+                "output": {
+                  "type": "object",
+                  "required": [
+                    "status",
+                    "network",
+                    "pool_id",
+                    "active",
+                    "timestamp"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "const": "success"
+                    },
+                    "network": {
+                      "type": "string",
+                      "const": "Robinhood"
+                    },
+                    "pool_id": {
+                      "type": "string"
+                    },
+                    "active": {
+                      "type": "boolean"
+                    },
+                    "sqrtPriceX96": {
+                      "type": "string"
+                    },
+                    "liquidity_raw": {
+                      "type": "string"
+                    },
+                    "tick": {
+                      "type": "integer"
+                    },
+                    "lp_fee": {
+                      "type": "integer"
+                    },
+                    "risk_score": {
+                      "type": "integer"
+                    },
+                    "reward_score": {
+                      "type": "integer"
+                    },
+                    "edge_score": {
+                      "type": "integer"
+                    },
+                    "risk_level": {
+                      "type": "string",
+                      "enum": [
+                        "LOW",
+                        "MEDIUM",
+                        "HIGH",
+                        "EXTREME"
+                      ]
+                    },
+                    "bot_decision": {
+                      "type": "string",
+                      "enum": [
+                        "CONSIDER_FAST_ENTRY",
+                        "HIGH_RISK_SCALP_ONLY",
+                        "WATCH_ONLY",
+                        "AVOID"
+                      ]
+                    },
+                    "reason_codes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "risk_note": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            },
+            "info": {
+              "input": {
+                "type": "object",
+                "required": [
+                  "pool_id"
+                ],
+                "properties": {
+                  "pool_id": {
+                    "type": "string",
+                    "pattern": "^0x[a-fA-F0-9]{64}$"
+                  }
+                }
+              },
+              "output": {
+                "type": "object",
+                "required": [
+                  "status",
+                  "network",
+                  "pool_id",
+                  "active",
+                  "timestamp"
+                ],
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "const": "success"
+                  },
+                  "network": {
+                    "type": "string",
+                    "const": "Robinhood"
+                  },
+                  "pool_id": {
+                    "type": "string"
+                  },
+                  "active": {
+                    "type": "boolean"
+                  },
+                  "sqrtPriceX96": {
+                    "type": "string"
+                  },
+                  "liquidity_raw": {
+                    "type": "string"
+                  },
+                  "tick": {
+                    "type": "integer"
+                  },
+                  "lp_fee": {
+                    "type": "integer"
+                  },
+                  "risk_score": {
+                    "type": "integer"
+                  },
+                  "reward_score": {
+                    "type": "integer"
+                  },
+                  "edge_score": {
+                    "type": "integer"
+                  },
+                  "risk_level": {
+                    "type": "string",
+                    "enum": [
+                      "LOW",
+                      "MEDIUM",
+                      "HIGH",
+                      "EXTREME"
+                    ]
+                  },
+                  "bot_decision": {
+                    "type": "string",
+                    "enum": [
+                      "CONSIDER_FAST_ENTRY",
+                      "HIGH_RISK_SCALP_ONLY",
+                      "WATCH_ONLY",
+                      "AVOID"
+                    ]
+                  },
+                  "reason_codes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "risk_note": {
+                    "type": "string"
+                  },
+                  "timestamp": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -300,9 +1552,72 @@
   },
   "components": {
     "schemas": {
+      "MemePoolQueryInput": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "default": 10,
+            "minimum": 1,
+            "maximum": 50
+          },
+          "min_liquidity_usd": {
+            "type": "number",
+            "default": 0,
+            "minimum": 0
+          },
+          "min_volume_5m_usd": {
+            "type": "number",
+            "default": 0,
+            "minimum": 0
+          }
+        }
+      },
+      "MemeMomentumQueryInput": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "default": 10,
+            "minimum": 1,
+            "maximum": 50
+          }
+        }
+      },
+      "NewMemePoolsQueryInput": {
+        "type": "object",
+        "properties": {
+          "max_age_minutes": {
+            "type": "integer",
+            "default": 60,
+            "minimum": 1,
+            "maximum": 1440
+          }
+        }
+      },
+      "PoolCheckQueryInput": {
+        "type": "object",
+        "required": [
+          "pool_id"
+        ],
+        "properties": {
+          "pool_id": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{64}$"
+          }
+        }
+      },
       "MemePoolsResponse": {
         "type": "object",
-        "required": ["status", "network", "product", "feed", "total_detected", "pools", "timestamp"],
+        "required": [
+          "status",
+          "network",
+          "product",
+          "feed",
+          "total_detected",
+          "pools",
+          "timestamp"
+        ],
         "properties": {
           "status": {
             "type": "string",
@@ -371,31 +1686,55 @@
             "type": "integer"
           },
           "age_minutes": {
-            "type": ["integer", "null"]
+            "type": [
+              "integer",
+              "null"
+            ]
           },
           "active": {
             "type": "boolean"
           },
           "fee_label": {
-            "type": ["string", "null"]
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "lp_fee": {
-            "type": ["integer", "null"]
+            "type": [
+              "integer",
+              "null"
+            ]
           },
           "tick": {
-            "type": ["integer", "null"]
+            "type": [
+              "integer",
+              "null"
+            ]
           },
           "liquidity_raw": {
-            "type": ["string", "null"]
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "sqrtPriceX96": {
-            "type": ["string", "null"]
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "protocol_fee": {
-            "type": ["integer", "null"]
+            "type": [
+              "integer",
+              "null"
+            ]
           },
           "live_error": {
-            "type": ["string", "null"]
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "risk_score": {
             "type": "integer",
@@ -417,11 +1756,21 @@
           },
           "risk_level": {
             "type": "string",
-            "enum": ["LOW", "MEDIUM", "HIGH", "EXTREME"]
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "EXTREME"
+            ]
           },
           "bot_decision": {
             "type": "string",
-            "enum": ["CONSIDER_FAST_ENTRY", "HIGH_RISK_SCALP_ONLY", "WATCH_ONLY", "AVOID"]
+            "enum": [
+              "CONSIDER_FAST_ENTRY",
+              "HIGH_RISK_SCALP_ONLY",
+              "WATCH_ONLY",
+              "AVOID"
+            ]
           },
           "reason_codes": {
             "type": "array",
@@ -436,7 +1785,13 @@
       },
       "PoolCheckResponse": {
         "type": "object",
-        "required": ["status", "network", "pool_id", "active", "timestamp"],
+        "required": [
+          "status",
+          "network",
+          "pool_id",
+          "active",
+          "timestamp"
+        ],
         "properties": {
           "status": {
             "type": "string",
@@ -475,11 +1830,21 @@
           },
           "risk_level": {
             "type": "string",
-            "enum": ["LOW", "MEDIUM", "HIGH", "EXTREME"]
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "EXTREME"
+            ]
           },
           "bot_decision": {
             "type": "string",
-            "enum": ["CONSIDER_FAST_ENTRY", "HIGH_RISK_SCALP_ONLY", "WATCH_ONLY", "AVOID"]
+            "enum": [
+              "CONSIDER_FAST_ENTRY",
+              "HIGH_RISK_SCALP_ONLY",
+              "WATCH_ONLY",
+              "AVOID"
+            ]
           },
           "reason_codes": {
             "type": "array",
@@ -498,20 +1863,31 @@
       },
       "PaymentRequiredResponse": {
         "type": "object",
-        "required": ["error", "message", "accepts"],
+        "required": [
+          "x402Version",
+          "error",
+          "resource",
+          "accepts"
+        ],
         "properties": {
-          "error": {
-            "type": "string",
-            "const": "payment_required"
+          "x402Version": {
+            "type": "integer",
+            "const": 2
           },
-          "message": {
+          "error": {
             "type": "string"
+          },
+          "resource": {
+            "type": "object"
           },
           "accepts": {
             "type": "array",
             "items": {
               "type": "object"
             }
+          },
+          "extensions": {
+            "type": "object"
           }
         }
       }
@@ -520,8 +1896,8 @@
       "x402Payment": {
         "type": "apiKey",
         "in": "header",
-        "name": "x-payment",
-        "description": "x402 payment payload for paid requests."
+        "name": "PAYMENT-SIGNATURE",
+        "description": "x402 v2 payment signature header for paid requests."
       },
       "authorization": {
         "type": "http",
