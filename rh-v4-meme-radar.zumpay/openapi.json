@@ -352,6 +352,15 @@
           "liquidity_raw": {
             "type": ["string", "null"]
           },
+          "sqrtPriceX96": {
+            "type": ["string", "null"]
+          },
+          "protocol_fee": {
+            "type": ["integer", "null"]
+          },
+          "live_error": {
+            "type": ["string", "null"]
+          },
           "risk_level": {
             "type": "string",
             "enum": ["HIGH", "EXTREME"]

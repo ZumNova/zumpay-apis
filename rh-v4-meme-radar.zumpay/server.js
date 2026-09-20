@@ -21,6 +21,7 @@ const ARC_USDC_ADDRESS =
   process.env.ARC_USDC_ADDRESS || "0x3600000000000000000000000000000000000000";
 const BASE_USDC_ADDRESS =
   process.env.BASE_USDC_ADDRESS || "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+const LIVE_CACHE_TTL_MS = Number(process.env.LIVE_CACHE_TTL_MS || 20000);
 
 const STATE_VIEW_ABI = [
   "function getSlot0(bytes32 poolId) view returns (uint160 sqrtPriceX96,int24 tick,uint24 protocolFee,uint24 lpFee)",
@@ -128,6 +129,7 @@ const DEFAULT_MEME_POOLS = [
 
 let gatewayMiddlewarePromise;
 let provider;
+let livePoolCache;
 
 app.use(express.json());
 app.use(requestTelemetry("zumpay-rh-v4-meme-radar-api"));
@@ -265,13 +267,14 @@ app.get("/v1/robinhood/v4/meme-pool-check", paymentGate, handleMemePoolCheck);
 async function handleMemePools(req, res, next) {
   try {
     const filters = parseMemeQuery(req.query);
-    const pools = getCuratedMemePools()
+    const snapshot = await getLiveMemeSnapshot();
+    const pools = snapshot.pools
       .filter((pool) => pool.liquidity_usd >= filters.minLiquidityUsd)
       .filter((pool) => pool.volume_5m_usd >= filters.minVolume5mUsd)
       .sort((a, b) => b.velocity_score - a.velocity_score)
       .slice(0, filters.limit);
 
-    return res.status(200).json(buildMemeResponse("meme_pools", pools, filters));
+    return res.status(200).json(buildMemeResponse("meme_pools", pools, filters, snapshot));
   } catch (err) {
     return next(err);
   }
@@ -282,11 +285,12 @@ async function handleMemeMomentum(req, res, next) {
     const limit = parseInteger(req.query.limit, 10, "limit");
     if (limit < 1 || limit > 50) throw badRequest("limit must be between 1 and 50.");
 
-    const pools = getCuratedMemePools()
+    const snapshot = await getLiveMemeSnapshot();
+    const pools = snapshot.pools
       .sort((a, b) => b.volume_5m_usd + b.tx_count_5m * 25 - (a.volume_5m_usd + a.tx_count_5m * 25))
       .slice(0, limit);
 
-    return res.status(200).json(buildMemeResponse("meme_momentum", pools, { limit }));
+    return res.status(200).json(buildMemeResponse("meme_momentum", pools, { limit }, snapshot));
   } catch (err) {
     return next(err);
   }
@@ -299,11 +303,14 @@ async function handleNewMemePools(req, res, next) {
       throw badRequest("max_age_minutes must be between 1 and 1440.");
     }
 
-    const pools = getCuratedMemePools()
-      .filter((pool) => pool.age_minutes <= maxAgeMinutes)
+    const snapshot = await getLiveMemeSnapshot();
+    const pools = snapshot.pools
+      .filter((pool) => pool.age_minutes != null && pool.age_minutes <= maxAgeMinutes)
       .sort((a, b) => a.age_minutes - b.age_minutes);
 
-    return res.status(200).json(buildMemeResponse("new_meme_pools", pools, { maxAgeMinutes }));
+    return res.status(200).json(
+      buildMemeResponse("new_meme_pools", pools, { maxAgeMinutes }, snapshot)
+    );
   } catch (err) {
     return next(err);
   }
@@ -348,6 +355,67 @@ function getProvider() {
     provider = new ethers.JsonRpcProvider(RH_RPC_URL, ROBINHOOD_CHAIN_ID);
   }
   return provider;
+}
+
+async function getLiveMemeSnapshot() {
+  if (livePoolCache && Date.now() - livePoolCache.refreshedAtMs < LIVE_CACHE_TTL_MS) {
+    return livePoolCache;
+  }
+
+  const provider = getProvider();
+  const stateView = new ethers.Contract(ROBINHOOD_STATE_VIEW, STATE_VIEW_ABI, provider);
+  const basePools = getCuratedMemePools();
+  const [blockNumber, pools] = await Promise.all([
+    provider.getBlockNumber(),
+    Promise.all(basePools.map((pool) => enrichPoolWithLiveState(pool, stateView)))
+  ]);
+
+  livePoolCache = {
+    pools,
+    blockNumber,
+    refreshedAtMs: Date.now(),
+    refreshedAt: new Date().toISOString()
+  };
+
+  return livePoolCache;
+}
+
+async function enrichPoolWithLiveState(pool, stateView) {
+  if (!/^0x[a-fA-F0-9]{64}$/.test(pool.pool_id)) {
+    return {
+      ...pool,
+      active: false,
+      live_error: "invalid_pool_id"
+    };
+  }
+
+  try {
+    const [slot0, liquidity] = await Promise.all([
+      stateView.getSlot0(pool.pool_id),
+      stateView.getLiquidity(pool.pool_id)
+    ]);
+    const sqrtPriceX96 = slot0[0];
+    const liquidityRaw = liquidity.toString();
+    const lpFee = Number(slot0[3]);
+
+    return {
+      ...pool,
+      active: sqrtPriceX96 > BigInt(0) && liquidity > BigInt(0),
+      sqrtPriceX96: sqrtPriceX96.toString(),
+      liquidity_raw: liquidityRaw,
+      tick: Number(slot0[1]),
+      protocol_fee: Number(slot0[2]),
+      lp_fee: lpFee,
+      fee_label: pool.fee_label || `${lpFee / 10000}%`,
+      live_error: null
+    };
+  } catch (error) {
+    return {
+      ...pool,
+      active: false,
+      live_error: error.shortMessage || error.message || "live_state_read_failed"
+    };
+  }
 }
 
 function getCuratedMemePools() {
@@ -402,7 +470,7 @@ function getBotHint(liquidityUsd, volume5mUsd, ageMinutes) {
   return "FAST_ENTRY_HIGH_RISK";
 }
 
-function buildMemeResponse(feed, pools, filters) {
+function buildMemeResponse(feed, pools, filters, snapshot) {
   return {
     status: "success",
     network: "Robinhood",
@@ -416,6 +484,9 @@ function buildMemeResponse(feed, pools, filters) {
       pool_manager: ROBINHOOD_POOL_MANAGER,
       state_view: ROBINHOOD_STATE_VIEW,
       data_source: process.env.MEME_POOLS_JSON ? "configured_watchlist" : "default_watchlist",
+      live_cache_ttl_ms: LIVE_CACHE_TTL_MS,
+      live_refreshed_at: snapshot.refreshedAt,
+      live_block_number: snapshot.blockNumber,
       risk_notice: "High-risk meme-pool feed. Activity does not imply safety."
     },
     timestamp: new Date().toISOString()
